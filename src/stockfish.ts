@@ -1,5 +1,4 @@
 interface StockfishOptions {
-  depth?: number;
   timeout?: number;
 }
 
@@ -20,8 +19,9 @@ class StockfishInstance {
   timeout: number;
 
   constructor(options: StockfishOptions = {}) {
-    this.depth = options.depth || 18;
-    this.timeout = options.timeout || 1000;
+    // probably won't reach before timeout
+    this.depth = 22;
+    this.timeout = options.timeout || 1500;
     this.engine = new Worker("stockfish/stockfish.js");
     this.engine.onmessage = ({ data }) => console.log(data);
     this.engine.postMessage("setoption name MultiPV value 100");

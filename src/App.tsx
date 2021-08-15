@@ -29,9 +29,11 @@ const moveStrategies = {
   drawish: lowestOf((scores) => Math.abs(last(scores))),
   inscrutable: highestOf((scores) => last(scores) - avg(scores) / 1.5),
   inscrutable2: highestOf((scores) => {
-    let idx = scores.findIndex((a) => a > 0);
-    idx += 1;
-    return scores[idx] * Math.sqrt(idx);
+    const idx = scores.findIndex((a) => a > 0);
+    if (idx === -1 || last(scores) < 0) {
+      return last(scores);
+    }
+    return last(scores) * Math.sqrt(idx + 1);
   }),
 };
 
@@ -54,7 +56,6 @@ function App() {
 
   const makeButtonHandler = (strat: MoveStrategy) => () => {
     const analyses = stockfish.current?.getAnalyses(game.fen());
-    analyses?.setProgressCb(console.log);
     analyses?.result.then((moves) => {
       const formatForChessJS = (str: string): ChessJS.ShortMove => {
         return {
