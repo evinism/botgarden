@@ -1,8 +1,9 @@
 interface StockfishOptions {
   depth?: number;
+  timeout?: number;
 }
 
-interface MoveAnalyses {
+export interface MoveAnalyses {
   [move: string]: number[];
 }
 
@@ -16,9 +17,11 @@ const infoRegex =
 class StockfishInstance {
   engine: Worker;
   depth: number;
+  timeout: number;
 
   constructor(options: StockfishOptions = {}) {
-    this.depth = options.depth || 14;
+    this.depth = options.depth || 18;
+    this.timeout = options.timeout || 1000;
     this.engine = new Worker("stockfish/stockfish.js");
     this.engine.onmessage = ({ data }) => console.log(data);
     this.engine.postMessage("setoption name MultiPV value 100");
@@ -28,7 +31,7 @@ class StockfishInstance {
 
   getAnalyses(fen?: string): AnalysesResponse {
     if (fen) {
-      this.engine.postMessage("position " + fen);
+      this.engine.postMessage("position fen " + fen);
     }
     this.engine.postMessage("go depth " + this.depth);
 
@@ -49,12 +52,19 @@ class StockfishInstance {
     };
 
     const result = new Promise<MoveAnalyses>((resolve) => {
+      const finish = () => {
+        this.engine.onmessage = null;
+        clearTimeout(timeout);
+        resolve(moveAnalyses);
+      };
+      const timeout = setTimeout(() => {
+        this.engine.postMessage("stop");
+      }, this.timeout);
+
       this.engine.onmessage = ({ data }) => {
         if (data.indexOf("bestmove") === 0) {
           // Found a result!! I don't actually care what it is.
-          this.engine.onmessage = null;
-          resolve(moveAnalyses);
-          return;
+          finish();
         } else if (data.indexOf("info") === 0) {
           const res = infoRegex.exec(data);
           if (!res) {
@@ -72,6 +82,10 @@ class StockfishInstance {
       setProgressCb,
     };
   }
+
+  flip = () => {
+    this.engine.postMessage("flip");
+  };
 
   destructor = () => {
     this.engine.terminate();
