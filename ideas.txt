@@ -1,0 +1,4 @@
+worst possible move
+alternate between worst and best
+win without taking any pawns
+beeline for en passant
