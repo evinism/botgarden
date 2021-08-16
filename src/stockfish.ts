@@ -12,7 +12,7 @@ export interface MoveAnalyses {
 }
 
 const infoRegex =
-  /^info depth ([0-9]+) seldepth [0-9]+ multipv [0-9]+ score cp (-?[0-9]+) nodes [0-9]+ nps [0-9]+ time [0-9]+ pv(( \w+)+)$/;
+  /^info depth ([0-9]+) seldepth [0-9]+ multipv [0-9]+ score (cp|mate) (-?[0-9]+) nodes [0-9]+ nps [0-9]+ time [0-9]+ pv(( \w+)+)$/;
 class StockfishInstance {
   engine: Worker;
   depth: number;
@@ -101,8 +101,12 @@ class StockfishInstance {
               return;
             }
             const depth = parseInt(res[1], 10);
-            const cp = parseInt(res[2], 10);
-            const line = res[3].substring(1).split(" ");
+            const mateLine = res[2] === "mate";
+            let cp = parseInt(res[3], 10);
+            if (mateLine) {
+              cp = 10000000 / cp;
+            }
+            const line = res[4].substring(1).split(" ");
             const move = line[0];
             recordAnalysis(depth, cp, move, line);
           }
