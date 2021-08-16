@@ -18,11 +18,11 @@ const highestOf = (sorter: (item: MoveAnalyses[string]) => number) =>
   lowestOf((item) => -sorter(item));
 
 const moveStrategies = {
-  worst: lowestOf((scores) => last(scores)),
-  best: highestOf((scores) => last(scores)),
-  drawish: lowestOf((scores) => Math.abs(last(scores))),
-  inscrutable: highestOf((scores) => last(scores) - avg(scores) / 1.5),
-  inscrutable2: highestOf((scores) => {
+  worst: lowestOf(({ scores }) => last(scores)),
+  best: highestOf(({ scores }) => last(scores)),
+  drawish: lowestOf(({ scores }) => Math.abs(last(scores))),
+  inscrutable: highestOf(({ scores }) => last(scores) - avg(scores) / 1.5),
+  inscrutable2: highestOf(({ scores }) => {
     const idx = scores.findIndex((a) => a > 0);
     if (idx === -1 || last(scores) < 0) {
       return last(scores);

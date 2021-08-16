@@ -5,11 +5,14 @@ interface StockfishOptions {
 }
 
 export interface MoveAnalyses {
-  [move: string]: number[];
+  [move: string]: {
+    scores: number[];
+    line: string[];
+  };
 }
 
 const infoRegex =
-  /info depth ([0-9]+) seldepth [0-9]+ multipv [0-9]+ score cp (-?[0-9]+) nodes [0-9]+ nps [0-9]+ time [0-9]+ pv (\w+)/;
+  /^info depth ([0-9]+) seldepth [0-9]+ multipv [0-9]+ score cp (-?[0-9]+) nodes [0-9]+ nps [0-9]+ time [0-9]+ pv(( \w+)+)$/;
 class StockfishInstance {
   engine: Worker;
   depth: number;
@@ -43,10 +46,11 @@ class StockfishInstance {
     }
   };
 
-  getAnalyses = (
-    fen?: string,
-    progressCb: (depth: number) => void = () => {}
-  ) =>
+  getAnalyses = (fen?: string) => {
+    return this.getEngineAnalyses(fen);
+  };
+
+  getEngineAnalyses = (fen?: string): Promise<MoveAnalyses> =>
     this.scheduler.schedule(() => {
       return new Promise<MoveAnalyses>((resolve) => {
         if (fen) {
@@ -56,12 +60,24 @@ class StockfishInstance {
 
         const moveAnalyses: MoveAnalyses = {};
         let hitDepth = 0;
-        const recordAnalysis = (depth: number, cp: number, move: string) => {
-          const curArray = (moveAnalyses[move] || []).slice();
+        const recordAnalysis = (
+          depth: number,
+          cp: number,
+          move: string,
+          line: string[]
+        ) => {
+          const curArray = (moveAnalyses[move]?.scores || []).slice();
+          let curLine = (moveAnalyses[move]?.line || []).slice();
+
           curArray[depth - 1] = cp;
-          moveAnalyses[move] = curArray;
+          if (line.length > curLine.length) {
+            curLine = line;
+          }
+          moveAnalyses[move] = {
+            line: curLine,
+            scores: curArray,
+          };
           if (depth > hitDepth) {
-            progressCb(depth);
             hitDepth = depth;
           }
         };
@@ -86,8 +102,9 @@ class StockfishInstance {
             }
             const depth = parseInt(res[1], 10);
             const cp = parseInt(res[2], 10);
-            const move = res[3];
-            recordAnalysis(depth, cp, move);
+            const line = res[3].substring(1).split(" ");
+            const move = line[0];
+            recordAnalysis(depth, cp, move, line);
           }
         };
       });
