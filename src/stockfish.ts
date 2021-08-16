@@ -43,8 +43,11 @@ class StockfishInstance {
     }
   };
 
-  getAnalyses(fen?: string, progressCb: (depth: number) => void = () => {}) {
-    return this.scheduler.schedule(() => {
+  getAnalyses = (
+    fen?: string,
+    progressCb: (depth: number) => void = () => {}
+  ) =>
+    this.scheduler.schedule(() => {
       return new Promise<MoveAnalyses>((resolve) => {
         if (fen) {
           this._postMessage("position fen " + fen);
@@ -89,7 +92,6 @@ class StockfishInstance {
         };
       });
     });
-  }
 
   flip = () => {
     this._postMessage("flip");
