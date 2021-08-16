@@ -1,27 +1,17 @@
-import * as ChessJS from "chess.js";
-import { ChessInstance } from "chess.js";
 import Chessboard from "chessboardjsx";
-import { useEffect, useRef, useReducer } from "react";
+import { useReducer } from "react";
 import "./App.css";
-import { defaultBots } from "./bot";
-import StockfishInstance from "./stockfish";
+import { chooseMove, defaultBots } from "./bot";
+import { useGame, useStockfish } from "./hooks";
 
 function Game() {
-  const gameRef = useRef<ChessInstance | void>();
-  const stockfish = useRef<StockfishInstance | void>();
   const forceUpdate = useReducer(() => ({}), {})[1] as () => void;
+  const game = useGame();
+  const stockfish = useStockfish();
 
-  useEffect(() => {
-    gameRef.current = new (ChessJS as any)() as ChessInstance;
-    stockfish.current = new StockfishInstance();
-    forceUpdate();
-    return stockfish.current.destructor;
-    // eslint-disable-next-line
-  }, []);
-  if (!gameRef.current) {
+  if (!game || !stockfish) {
     return <></>;
   }
-  const game = gameRef.current;
 
   return (
     <>
@@ -37,16 +27,16 @@ function Game() {
           forceUpdate();
         }}
       />
-      {defaultBots.map((bot) => (
+      {defaultBots.map((botConfig) => (
         <button
           onClick={() => {
-            stockfish.current?.getAnalyses(game.fen())?.then((moves) => {
-              game.move(bot.chooseMove(moves));
+            stockfish.getAnalyses(game.fen()).then((moves) => {
+              game.move(chooseMove(moves, botConfig));
               forceUpdate();
             });
           }}
         >
-          {bot.name}
+          {botConfig.name}
         </button>
       ))}
     </>

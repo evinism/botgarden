@@ -36,47 +36,38 @@ export interface BotConfig {
   shimStrategy: keyof typeof moveStrategies;
 }
 
-class Bot {
-  config: BotConfig;
-  name: string;
+export function chooseMove(
+  lines: MoveAnalyses,
+  config: BotConfig
+): ChessJS.ShortMove {
+  const strat = moveStrategies[config.shimStrategy];
+  const rawMove = strat(lines);
 
-  constructor(config: BotConfig) {
-    this.config = config;
-    this.name = config.name;
-  }
-
-  chooseMove(lines: MoveAnalyses): ChessJS.ShortMove {
-    const strat = moveStrategies[this.config.shimStrategy];
-    const rawMove = strat(lines);
-
-    const formatForChessJS = (str: string): ChessJS.ShortMove => {
-      return {
-        from: str.slice(0, 2),
-        to: str.slice(2, 4),
-        promotion: str.slice(4, 5) || "q",
-      } as any;
-    };
-    return formatForChessJS(rawMove);
-  }
+  const formatForChessJS = (str: string): ChessJS.ShortMove => {
+    return {
+      from: str.slice(0, 2),
+      to: str.slice(2, 4),
+      promotion: str.slice(4, 5) || "q",
+    } as any;
+  };
+  return formatForChessJS(rawMove);
 }
 
-export const defaultBots = [
-  new Bot({
+export const defaultBots: BotConfig[] = [
+  {
     name: "Best",
     shimStrategy: "best",
-  }),
-  new Bot({
+  },
+  {
     name: "Worst",
     shimStrategy: "worst",
-  }),
-  new Bot({
+  },
+  {
     name: "Drawish",
     shimStrategy: "drawish",
-  }),
-  new Bot({
+  },
+  {
     name: "Inscrutable",
     shimStrategy: "inscrutable2",
-  }),
+  },
 ];
-
-export default Bot;
