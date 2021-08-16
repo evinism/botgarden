@@ -17,10 +17,10 @@ const sum = (a: number[]) => a.reduce((a, b) => a + b, 0);
 const avg = (a: number[]) => sum(a) / a.length;
 
 const lowestOf =
-  (sorter: (item: number[]) => number) => (moves: MoveAnalyses) =>
+  (sorter: (item: MoveAnalyses[string]) => number) => (moves: MoveAnalyses) =>
     sortBy(([, scores]) => sorter(scores), Object.entries(moves))[0][0];
 
-const highestOf = (sorter: (item: number[]) => number) =>
+const highestOf = (sorter: (item: MoveAnalyses[string]) => number) =>
   lowestOf((item) => -sorter(item));
 
 const moveStrategies = {
@@ -56,7 +56,7 @@ function App() {
 
   const makeButtonHandler = (strat: MoveStrategy) => () => {
     const analyses = stockfish.current?.getAnalyses(game.fen());
-    analyses?.result.then((moves) => {
+    analyses?.then((moves) => {
       const formatForChessJS = (str: string): ChessJS.ShortMove => {
         return {
           from: str.slice(0, 2),
