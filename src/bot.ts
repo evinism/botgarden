@@ -1,5 +1,7 @@
 import { MoveAnalyses } from "./stockfish";
 import * as ChessJS from "chess.js";
+import { ChessInstance } from "chess.js";
+import { getFavoredMoves, Opening } from "./openings";
 
 const last = (a: number[]) => a[a.length - 1];
 
@@ -34,12 +36,19 @@ const moveStrategies = {
 export interface BotConfig {
   name: string;
   shimStrategy: keyof typeof moveStrategies;
+  preferredOpenings: Opening[];
 }
 
 export function chooseMove(
   lines: MoveAnalyses,
-  config: BotConfig
-): ChessJS.ShortMove {
+  config: BotConfig,
+  game: ChessInstance
+): ChessJS.ShortMove | string {
+  const favoredMoves = getFavoredMoves(config.preferredOpenings, game);
+  if (favoredMoves.length > 0) {
+    return favoredMoves[Math.floor(Math.random() * favoredMoves.length)];
+  }
+
   const strat = moveStrategies[config.shimStrategy];
   const rawMove = strat(lines);
 
@@ -57,17 +66,21 @@ export const defaultBots: BotConfig[] = [
   {
     name: "Best",
     shimStrategy: "best",
+    preferredOpenings: [],
   },
   {
     name: "Worst",
     shimStrategy: "worst",
+    preferredOpenings: [],
   },
   {
     name: "Drawish",
     shimStrategy: "drawish",
+    preferredOpenings: [],
   },
   {
     name: "Inscrutable",
     shimStrategy: "inscrutable2",
+    preferredOpenings: [],
   },
 ];

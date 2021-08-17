@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import "./App.css";
 import { chooseMove, defaultBots, BotConfig } from "./bot";
 import { useGame, useStockfish } from "./hooks";
+import { getPreciseLine } from "./openings";
 
 type Player =
   | {
@@ -23,11 +24,11 @@ interface GameProps {
 }
 
 const defaultParticipants: Participants = {
-  b: {
-    type: "bot",
-    config: defaultBots[1],
-  },
   w: {
+    type: "bot",
+    config: defaultBots[0],
+  },
+  b: {
     type: "interactive",
   },
 };
@@ -49,7 +50,7 @@ function Game({ participants = defaultParticipants }: GameProps) {
     ) {
       const config = activeParticipant.config;
       stockfish.getAnalyses(game.fen()).then((moves) => {
-        move(chooseMove(moves, config));
+        move(chooseMove(moves, config, game));
       });
     }
   }, [activeParticipant, game, move, stockfish]);
@@ -81,12 +82,18 @@ function Game({ participants = defaultParticipants }: GameProps) {
     );
   }
 
+  const orientation =
+    participants.w.type === "bot" && participants.b.type === "interactive"
+      ? "black"
+      : "white";
+
   return (
     <>
       {game.turn()} to move
       <div className="gameboard-wrapper">
         <div className="gameboard">
           <Chessboard
+            orientation={orientation}
             position={game.fen()}
             draggable={
               !game.game_over() && activeParticipant.type === "interactive"
@@ -102,6 +109,7 @@ function Game({ participants = defaultParticipants }: GameProps) {
         </div>
         {overlay}
       </div>
+      Openings: {getPreciseLine(game)?.description}
     </>
   );
 }

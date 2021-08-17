@@ -18,7 +18,7 @@ export const useStockfish = () => {
 
 export const useGame = (): [
   ChessInstance | void,
-  (move: ChessJS.ShortMove) => void
+  (move: ChessJS.ShortMove | string) => void
 ] => {
   const gameRef = useRef<ChessInstance | void>();
   const forceUpdate = useReducer(() => ({}), {})[1] as () => void;
@@ -29,7 +29,7 @@ export const useGame = (): [
     // eslint-disable-next-line
   }, []);
 
-  const makeMove = (move: ChessJS.ShortMove) => {
+  const makeMove = (move: ChessJS.ShortMove | string) => {
     gameRef.current?.move(move);
     forceUpdate();
   };
