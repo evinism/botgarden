@@ -49,9 +49,15 @@ function Game({ participants = defaultParticipants }: GameProps) {
       !game.game_over()
     ) {
       const config = activeParticipant.config;
-      stockfish.getAnalyses(game.fen()).then((moves) => {
-        move(chooseMove(moves, config, game));
-      });
+      stockfish
+        .getAnalyses({
+          fen: game.fen(),
+          depth: config.baseEngine.maxDepth,
+          timeout: config.baseEngine.timeout,
+        })
+        .then((moves) => {
+          move(chooseMove(moves, config, game));
+        });
     }
   }, [activeParticipant, game, move, stockfish]);
 

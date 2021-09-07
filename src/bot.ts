@@ -41,6 +41,10 @@ const moveStrategies = {
 
 export interface BotConfig {
   name: string;
+  baseEngine: {
+    maxDepth: number;
+    timeout: number;
+  };
   shimStrategy: keyof typeof moveStrategies;
   preferredOpenings: Opening[];
 }
@@ -71,22 +75,38 @@ export function chooseMove(
 export const defaultBots: BotConfig[] = [
   {
     name: "Best",
+    baseEngine: {
+      maxDepth: 23,
+      timeout: 1500,
+    },
     shimStrategy: "best",
     preferredOpenings: [],
   },
   {
     name: "Worst",
     shimStrategy: "worst",
+    baseEngine: {
+      maxDepth: 23,
+      timeout: 500,
+    },
     preferredOpenings: [],
   },
   {
     name: "Drawish",
     shimStrategy: "drawish",
+    baseEngine: {
+      maxDepth: 23,
+      timeout: 1500,
+    },
     preferredOpenings: [],
   },
   {
     name: "Inscrutable",
     shimStrategy: "inscrutable2",
+    baseEngine: {
+      maxDepth: 23,
+      timeout: 1500,
+    },
     preferredOpenings: [],
   },
 ];

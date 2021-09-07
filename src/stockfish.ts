@@ -1,8 +1,6 @@
 import Scheduler from "./scheduler";
 
-interface StockfishOptions {
-  timeout?: number;
-}
+interface StockfishOptions {}
 
 export interface MoveAnalyses {
   [move: string]: {
@@ -11,19 +9,22 @@ export interface MoveAnalyses {
   };
 }
 
+interface AnalysisRequest {
+  fen: string;
+  depth: number;
+  timeout: number;
+}
+
+type AnalysisOptions = Partial<AnalysisRequest>;
+
 const infoRegex =
   /^info depth ([0-9]+) seldepth [0-9]+ multipv [0-9]+ score (cp|mate) (-?[0-9]+) nodes [0-9]+ nps [0-9]+ time [0-9]+ pv(( \w+)+)$/;
 class StockfishInstance {
   engine: Worker;
-  depth: number;
-  timeout: number;
   onmessage: ((message: string) => void) | null;
   scheduler: Scheduler;
 
-  constructor(options: StockfishOptions = {}) {
-    // probably won't reach before timeout
-    this.depth = 22;
-    this.timeout = options.timeout || 1500;
+  constructor(_: StockfishOptions = {}) {
     this.engine = new Worker("stockfish/stockfish.js");
     this.scheduler = new Scheduler();
 
@@ -46,17 +47,21 @@ class StockfishInstance {
     }
   };
 
-  getAnalyses = (fen?: string) => {
-    return this.getEngineAnalyses(fen);
+  getAnalyses = ({ fen = "", depth = 23, timeout = 1000 }: AnalysisOptions) => {
+    return this._getEngineAnalyses({ fen, depth, timeout });
   };
 
-  getEngineAnalyses = (fen?: string): Promise<MoveAnalyses> =>
+  _getEngineAnalyses = ({
+    fen,
+    depth,
+    timeout,
+  }: AnalysisRequest): Promise<MoveAnalyses> =>
     this.scheduler.schedule(() => {
       return new Promise<MoveAnalyses>((resolve) => {
         if (fen) {
           this._postMessage("position fen " + fen);
         }
-        this._postMessage("go depth " + this.depth);
+        this._postMessage("go depth " + depth);
 
         const moveAnalyses: MoveAnalyses = {};
         let hitDepth = 0;
@@ -84,12 +89,12 @@ class StockfishInstance {
 
         const finish = () => {
           this.onmessage = null;
-          clearTimeout(timeout);
+          clearTimeout(timeoutId);
           resolve(moveAnalyses);
         };
-        const timeout = setTimeout(() => {
+        const timeoutId = setTimeout(() => {
           this._postMessage("stop");
-        }, this.timeout);
+        }, timeout);
 
         this.onmessage = (data) => {
           if (data.indexOf("bestmove") === 0) {
