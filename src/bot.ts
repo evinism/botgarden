@@ -25,11 +25,17 @@ const moveStrategies = {
   drawish: lowestOf(({ scores }) => Math.abs(last(scores))),
   inscrutable: highestOf(({ scores }) => last(scores) - avg(scores) / 1.5),
   inscrutable2: highestOf(({ scores }) => {
-    const idx = scores.findIndex((a) => a > 0);
-    if (idx === -1 || last(scores) < 0) {
+    const firstNegative = scores.findIndex((a) => a < 0);
+    const firstPositive = scores.findIndex((a) => a > 0);
+    if (firstPositive === -1 || last(scores) < 0) {
       return last(scores);
     }
-    return last(scores) * Math.sqrt(idx + 1);
+    let multiplier = 1;
+    if (firstNegative < firstPositive) {
+      multiplier = firstPositive + 1;
+    }
+    console.log(scores, multiplier);
+    return last(scores) * multiplier;
   }),
 };
 
