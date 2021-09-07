@@ -2,6 +2,7 @@ import { MoveAnalyses } from "./stockfish";
 import * as ChessJS from "chess.js";
 import { ChessInstance } from "chess.js";
 import { getFavoredMoves, Opening } from "./openings";
+import jsonLogic from "json-logic-js";
 
 const last = (a: number[]) => a[a.length - 1];
 
@@ -20,8 +21,6 @@ const highestOf = (sorter: (item: MoveAnalyses[string]) => number) =>
   lowestOf((item) => -sorter(item));
 
 const moveStrategies = {
-  worst: lowestOf(({ scores }) => last(scores)),
-  best: highestOf(({ scores }) => last(scores)),
   drawish: lowestOf(({ scores }) => Math.abs(last(scores))),
   inscrutable: highestOf(({ scores }) => last(scores) - avg(scores) / 1.5),
   inscrutable2: highestOf(({ scores }) => {
@@ -39,13 +38,23 @@ const moveStrategies = {
   }),
 };
 
+type Strategy =
+  | {
+      type: "hardcoded";
+      id: keyof typeof moveStrategies;
+    }
+  | {
+      type: "jsonlogic";
+      logic: jsonLogic.RulesLogic;
+    };
+
 export interface BotConfig {
   name: string;
   baseEngine: {
     maxDepth: number;
     timeout: number;
   };
-  shimStrategy: keyof typeof moveStrategies;
+  strategy: Strategy;
   preferredOpenings: Opening[];
 }
 
@@ -59,7 +68,14 @@ export function chooseMove(
     return favoredMoves[Math.floor(Math.random() * favoredMoves.length)];
   }
 
-  const strat = moveStrategies[config.shimStrategy];
+  let strat: (moves: MoveAnalyses) => string;
+  if (config.strategy.type === "hardcoded") {
+    strat = moveStrategies[config.strategy.id];
+  } else {
+    const logic = config.strategy.logic;
+    strat = highestOf((line) => jsonLogic.apply(logic, line));
+  }
+
   const rawMove = strat(lines);
 
   const formatForChessJS = (str: string): ChessJS.ShortMove => {
@@ -79,12 +95,24 @@ export const defaultBots: BotConfig[] = [
       maxDepth: 23,
       timeout: 1500,
     },
-    shimStrategy: "best",
+    strategy: {
+      type: "jsonlogic",
+      logic: {
+        reduce: [{ var: "scores" }, { var: "current" }, 0],
+      },
+    },
     preferredOpenings: [],
   },
   {
     name: "Worst",
-    shimStrategy: "worst",
+    strategy: {
+      type: "jsonlogic",
+      logic: {
+        "-": {
+          reduce: [{ var: "scores" }, { var: "current" }, 0],
+        },
+      },
+    },
     baseEngine: {
       maxDepth: 23,
       timeout: 500,
@@ -93,7 +121,10 @@ export const defaultBots: BotConfig[] = [
   },
   {
     name: "Drawish",
-    shimStrategy: "drawish",
+    strategy: {
+      type: "hardcoded",
+      id: "drawish",
+    },
     baseEngine: {
       maxDepth: 23,
       timeout: 1500,
@@ -102,7 +133,10 @@ export const defaultBots: BotConfig[] = [
   },
   {
     name: "Inscrutable",
-    shimStrategy: "inscrutable2",
+    strategy: {
+      type: "hardcoded",
+      id: "inscrutable2",
+    },
     baseEngine: {
       maxDepth: 23,
       timeout: 1500,
