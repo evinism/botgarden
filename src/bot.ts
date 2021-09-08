@@ -3,6 +3,7 @@ import * as ChessJS from "chess.js";
 import { ChessInstance } from "chess.js";
 import { getFavoredMoves, Opening } from "./openings";
 import jsonLogic from "json-logic-js";
+import getFunction from "./getFunction";
 
 const last = (a: number[]) => a[a.length - 1];
 
@@ -21,21 +22,7 @@ const highestOf = (sorter: (item: MoveAnalyses[string]) => number) =>
   lowestOf((item) => -sorter(item));
 
 const moveStrategies = {
-  drawish: lowestOf(({ scores }) => Math.abs(last(scores))),
   inscrutable: highestOf(({ scores }) => last(scores) - avg(scores) / 1.5),
-  inscrutable2: highestOf(({ scores }) => {
-    const firstNegative = scores.findIndex((a) => a < 0);
-    const firstPositive = scores.findIndex((a) => a > 0);
-    if (firstPositive === -1 || last(scores) < 0) {
-      return last(scores);
-    }
-    let multiplier = 1;
-    if (firstNegative < firstPositive) {
-      multiplier = firstPositive + 1;
-    }
-    console.log(scores, multiplier);
-    return last(scores) * multiplier;
-  }),
 };
 
 type Strategy =
@@ -44,11 +31,18 @@ type Strategy =
       id: keyof typeof moveStrategies;
     }
   | {
-      type: "jsonlogic";
+      type: "scorer/jsonlogic";
       logic: jsonLogic.RulesLogic;
+    }
+  | {
+      // DANGEROUS.
+      type: "scorer/javascript";
+      dangerous: true;
+      function: string;
     };
 
 export interface BotConfig {
+  builtin?: true;
   name: string;
   baseEngine: {
     maxDepth: number;
@@ -71,6 +65,14 @@ export function chooseMove(
   let strat: (moves: MoveAnalyses) => string;
   if (config.strategy.type === "hardcoded") {
     strat = moveStrategies[config.strategy.id];
+  } else if (config.strategy.type === "scorer/javascript") {
+    // BE VERY WARY OF THIS.
+    const fn = getFunction(config.strategy.function);
+    if (typeof fn !== "function") {
+      alert("Not a valid function for the bot!");
+      throw new Error("Not a valid function for the bot");
+    }
+    strat = highestOf(fn);
   } else {
     const logic = config.strategy.logic;
     strat = highestOf((line) => jsonLogic.apply(logic, line));
@@ -88,15 +90,37 @@ export function chooseMove(
   return formatForChessJS(rawMove);
 }
 
+const drawishFnText = `(({ scores }) => -Math.abs(scores[scores.length - 1]))`;
+
+const inscrutableFnText = `
+function last(arr){
+  return arr[arr.length - 1]
+}
+
+(function scorer({ scores }) {
+  const firstNegative = scores.findIndex((a) => a < 0);
+  const firstPositive = scores.findIndex((a) => a > 0);
+  if (firstPositive === -1 || last(scores) < 0) {
+    return last(scores);
+  }
+  let multiplier = 1;
+  if (firstNegative < firstPositive) {
+    multiplier = firstPositive + 1;
+  }
+  console.log(scores, multiplier);
+  return last(scores) * multiplier;
+})`;
+
 export const defaultBots: BotConfig[] = [
   {
     name: "Best",
+    builtin: true,
     baseEngine: {
       maxDepth: 23,
       timeout: 1500,
     },
     strategy: {
-      type: "jsonlogic",
+      type: "scorer/jsonlogic",
       logic: {
         reduce: [{ var: "scores" }, { var: "current" }, 0],
       },
@@ -105,8 +129,9 @@ export const defaultBots: BotConfig[] = [
   },
   {
     name: "Worst",
+    builtin: true,
     strategy: {
-      type: "jsonlogic",
+      type: "scorer/jsonlogic",
       logic: {
         "-": {
           reduce: [{ var: "scores" }, { var: "current" }, 0],
@@ -121,9 +146,11 @@ export const defaultBots: BotConfig[] = [
   },
   {
     name: "Drawish",
+    builtin: true,
     strategy: {
-      type: "hardcoded",
-      id: "drawish",
+      dangerous: true,
+      type: "scorer/javascript",
+      function: drawishFnText,
     },
     baseEngine: {
       maxDepth: 23,
@@ -133,9 +160,11 @@ export const defaultBots: BotConfig[] = [
   },
   {
     name: "Inscrutable",
+    builtin: true,
     strategy: {
-      type: "hardcoded",
-      id: "inscrutable2",
+      dangerous: true,
+      type: "scorer/javascript",
+      function: inscrutableFnText,
     },
     baseEngine: {
       maxDepth: 23,
