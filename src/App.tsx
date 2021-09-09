@@ -1,10 +1,9 @@
-import { useState } from "react";
 import "./App.css";
-import Game from "./Game";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import { BotConfig, defaultBots } from "./bot";
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
-import BotEditor from "./BotEditor";
+import Main from "./pages/Main";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import EditorPage from "./pages/EditorPage";
 
 const darkTheme = createTheme({
   palette: {
@@ -13,40 +12,25 @@ const darkTheme = createTheme({
 });
 
 function App() {
-  const [currentBot, setCurrentBot] = useState<BotConfig | void>();
-
   return (
     <ThemeProvider theme={darkTheme}>
-      <div className="App">
-        <header className="App-header">
-          {currentBot ? (
-            <>
-              <button onClick={() => setCurrentBot()}>Back</button>
-              <Game
-                participants={{
-                  w: {
-                    type: "bot",
-                    config: currentBot,
-                  },
-                  b: {
-                    type: "interactive",
-                  },
-                }}
-              />
-            </>
-          ) : (
-            <>
-              <h1>Choose a bot</h1>
-              {defaultBots.map((bot) => (
-                <div>
-                  <button onClick={() => setCurrentBot(bot)}>{bot.name}</button>
-                </div>
-              ))}
-            </>
-          )}
-          {false && <BotEditor />}
-        </header>
-      </div>
+      <Router>
+        <div className="App">
+          <Switch>
+            <Route path="/editor">
+              <EditorPage />
+            </Route>
+            <Route path="/game">
+              <Main />
+            </Route>
+            <Route path="/" exact>
+              <Link to="/editor">Editor</Link>
+              <Link to="/game">Game</Link>
+            </Route>
+            <Route path="/">Page Not Found!!!</Route>
+          </Switch>
+        </div>
+      </Router>
       <CssBaseline />
     </ThemeProvider>
   );

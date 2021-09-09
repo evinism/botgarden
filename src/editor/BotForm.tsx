@@ -1,16 +1,17 @@
 import {
   Button,
   FormControlLabel,
+  MenuItem,
   Radio,
   RadioGroup,
+  Select,
   Slider,
   TextField,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import { makeStyles } from "@material-ui/styles";
-import { useState } from "react";
-import { BotConfig } from "./bot";
-import { openings } from "./openings";
+import { BotConfig, hardcodedStrategies } from "../bot";
+import { openings } from "../openings";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,30 +19,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface BotEditorProps {
-  initialBot?: BotConfig;
-  close?: () => void;
-  save?: (botConfig: BotConfig) => void;
+interface BotFormProps {
+  botConfig: BotConfig;
+  setBotConfig: (config: BotConfig) => unknown;
 }
 
-const skeleton: BotConfig = {
-  name: "New Bot",
-  baseEngine: {
-    maxDepth: 10,
-    timeout: 1500,
-  },
-  strategy: {
-    type: "scorer/jsonlogic",
-    logic: { reduce: [{ var: "scores" }, { var: "current" }, 0] },
-  },
-  preferredOpenings: [],
-};
-
-const BotEditor = ({ initialBot = skeleton, close, save }: BotEditorProps) => {
+const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
   const styles = useStyles();
-  const [botConfig, setBotConfig] = useState<BotConfig>(() =>
-    JSON.parse(JSON.stringify(initialBot))
-  );
 
   let textEditorSlot: React.ReactNode;
   if (botConfig.strategy.type === "scorer/javascript") {
@@ -83,7 +67,7 @@ const BotEditor = ({ initialBot = skeleton, close, save }: BotEditorProps) => {
     );
   } else {
     textEditorSlot = (
-      <TextField
+      <Select
         label="ID"
         value={botConfig.strategy.id}
         onChange={(e) => {
@@ -95,7 +79,13 @@ const BotEditor = ({ initialBot = skeleton, close, save }: BotEditorProps) => {
             },
           });
         }}
-      />
+      >
+        {Object.keys(hardcodedStrategies).map((key) => (
+          <MenuItem value={key} key={key}>
+            {key}
+          </MenuItem>
+        ))}
+      </Select>
     );
   }
 
@@ -161,6 +151,11 @@ const BotEditor = ({ initialBot = skeleton, close, save }: BotEditorProps) => {
               type: "scorer/jsonlogic",
               logic: { reduce: [{ var: "scores" }, { var: "current" }, 0] },
             };
+          } else {
+            newStrategy = {
+              type: "hardcoded",
+              id: "best",
+            };
           }
           if (newStrategy) {
             setBotConfig({
@@ -174,6 +169,11 @@ const BotEditor = ({ initialBot = skeleton, close, save }: BotEditorProps) => {
           value="scorer/javascript"
           control={<Radio />}
           label="JavaScript"
+        />
+        <FormControlLabel
+          value="hardcoded"
+          control={<Radio />}
+          label="Built-in"
         />
         <FormControlLabel
           value="scorer/jsonlogic"
@@ -212,4 +212,4 @@ const BotEditor = ({ initialBot = skeleton, close, save }: BotEditorProps) => {
   );
 };
 
-export default BotEditor;
+export default BotForm;

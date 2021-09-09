@@ -11,9 +11,6 @@ function sortBy<T>(sorter: (item: T) => number, arr: T[]): T[] {
   return arr.sort((a, b) => sorter(a) - sorter(b));
 }
 
-const sum = (a: number[]) => a.reduce((a, b) => a + b, 0);
-const avg = (a: number[]) => sum(a) / a.length;
-
 const lowestOf =
   (sorter: (item: MoveAnalyses[string]) => number) => (moves: MoveAnalyses) =>
     sortBy(([, scores]) => sorter(scores), Object.entries(moves))[0][0];
@@ -21,14 +18,15 @@ const lowestOf =
 const highestOf = (sorter: (item: MoveAnalyses[string]) => number) =>
   lowestOf((item) => -sorter(item));
 
-const moveStrategies = {
-  inscrutable: highestOf(({ scores }) => last(scores) - avg(scores) / 1.5),
+export const hardcodedStrategies = {
+  best: highestOf(({ scores }) => last(scores)),
+  worst: highestOf(({ scores }) => -last(scores)),
 };
 
 type Strategy =
   | {
       type: "hardcoded";
-      id: keyof typeof moveStrategies;
+      id: keyof typeof hardcodedStrategies;
     }
   | {
       type: "scorer/jsonlogic";
@@ -64,7 +62,7 @@ export function chooseMove(
 
   let strat: (moves: MoveAnalyses) => string;
   if (config.strategy.type === "hardcoded") {
-    strat = moveStrategies[config.strategy.id];
+    strat = hardcodedStrategies[config.strategy.id];
   } else if (config.strategy.type === "scorer/javascript") {
     // BE VERY WARY OF THIS.
     const fn = getFunction(config.strategy.function);
