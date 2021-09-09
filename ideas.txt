@@ -1,4 +1,27 @@
 worst possible move
-alternate between worst and best
+alternate between worst and best, or every 5th move.
 win without taking any pawns
 beeline for en passant
+cast fear spell on a certain piece at a certain time
+Be able to decieve the computer as to what move you actually did.
+"spy piece"... act as if the piece was on their turn, but they can't move it.
+vendetta mode: try to kill a certain piece with all their vigor.
+Spite mode: if you're really losing, try to eliminate as many of the enemy pieces as possible
+relative pacifist, but grandmaster positionally
+weight for winning positions with point defecits
+grandmaster but you can't check until it's the last move.
+grandmaster but you can't use pins or forks.
+grandmaster who only uses their pawns offensively?? I don't quite get how that works.
+queen sac in the first 5 moves.
+vengeful twins: if you take a knight, then the other knight tries to enact revenge on the piece.
+"Pick on someone your own size": pawns only endangered by the opponent's pawn.
+"Get down mr president!" Certain piece is a second king.
+"I think this piece is the king"
+"the alternating pacifist." Alternate between not taking and taking.
+"Grandmaster but you know what their next move is gonna be." << Some method of foresight.
+"combinations of the above"
+"Hulk mode." Play badly until a certain material disadvantage.
+Weight towards symmetry
+Weight towards making certain shape.
+"Afraid of the center tiles"
+"ptsd" if a piece is taken, then avoid moving to that square. 

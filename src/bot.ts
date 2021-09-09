@@ -172,4 +172,19 @@ export const defaultBots: BotConfig[] = [
     },
     preferredOpenings: [],
   },
+  {
+    name: "Shallow",
+    builtin: true,
+    baseEngine: {
+      maxDepth: 1,
+      timeout: 1500,
+    },
+    strategy: {
+      type: "scorer/jsonlogic",
+      logic: {
+        reduce: [{ var: "scores" }, { var: "current" }, 0],
+      },
+    },
+    preferredOpenings: [],
+  },
 ];
