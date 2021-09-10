@@ -6,7 +6,7 @@ import BotForm from "./BotForm";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: 250,
+    display: "flex",
   },
 }));
 
@@ -19,7 +19,7 @@ interface BotEditorProps {
 const skeleton: BotConfig = {
   name: "New Bot",
   baseEngine: {
-    maxDepth: 10,
+    maxDepth: 23,
     timeout: 1500,
   },
   strategy: {
@@ -37,18 +37,22 @@ const BotEditor = ({ initialBot = skeleton, close, save }: BotEditorProps) => {
 
   return (
     <div className={styles.root}>
-      <BotForm botConfig={botConfig} setBotConfig={setBotConfig} />
-      <Game
-        participants={{
-          w: {
-            type: "bot",
-            config: botConfig,
-          },
-          b: {
-            type: "interactive",
-          },
-        }}
-      />
+      <div>
+        <BotForm botConfig={botConfig} setBotConfig={setBotConfig} />
+      </div>
+      <div>
+        <Game
+          participants={{
+            w: {
+              type: "bot",
+              config: botConfig,
+            },
+            b: {
+              type: "interactive",
+            },
+          }}
+        />
+      </div>
     </div>
   );
 };

@@ -88,14 +88,16 @@ export function chooseMove(
   return formatForChessJS(rawMove);
 }
 
-const drawishFnText = `(({ scores }) => -Math.abs(scores[scores.length - 1]))`;
+const drawishFnText = `function score({ scores }){
+  return -Math.abs(scores[scores.length - 1])
+}`;
 
 const inscrutableFnText = `
 function last(arr){
   return arr[arr.length - 1]
 }
 
-(function scorer({ scores }) {
+function score({ scores }) {
   const firstNegative = scores.findIndex((a) => a < 0);
   const firstPositive = scores.findIndex((a) => a > 0);
   if (firstPositive === -1 || last(scores) < 0) {
@@ -107,7 +109,7 @@ function last(arr){
   }
   console.log(scores, multiplier);
   return last(scores) * multiplier;
-})`;
+}`;
 
 export const defaultBots: BotConfig[] = [
   {
