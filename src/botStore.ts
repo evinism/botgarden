@@ -32,10 +32,8 @@ export const defaultBots: { [key: string]: BotConfig } = {
       timeout: 1500,
     },
     strategy: {
-      type: "scorer/jsonlogic",
-      logic: {
-        reduce: [{ var: "scores" }, { var: "current" }, 0],
-      },
+      type: "hardcoded",
+      id: "best",
     },
     preferredOpenings: [],
   },
@@ -43,12 +41,8 @@ export const defaultBots: { [key: string]: BotConfig } = {
     name: "Worst",
     builtin: true,
     strategy: {
-      type: "scorer/jsonlogic",
-      logic: {
-        "-": {
-          reduce: [{ var: "scores" }, { var: "current" }, 0],
-        },
-      },
+      type: "hardcoded",
+      id: "worst",
     },
     baseEngine: {
       maxDepth: 23,
@@ -92,16 +86,17 @@ export const defaultBots: { [key: string]: BotConfig } = {
       timeout: 1500,
     },
     strategy: {
-      type: "scorer/jsonlogic",
-      logic: {
-        reduce: [{ var: "scores" }, { var: "current" }, 0],
-      },
+      type: "hardcoded",
+      id: "best",
     },
     preferredOpenings: [],
   },
 };
 
-let localBotStore: typeof defaultBots = defaultBots;
+const lsKey = "bots-key2";
+
+let localBotStore: typeof defaultBots =
+  JSON.parse(localStorage.getItem(lsKey) || "null") || defaultBots;
 
 export function getAllBots() {
   return localBotStore;
@@ -118,9 +113,11 @@ export function save(
       builtin: false,
     },
   };
+  localStorage.setItem(lsKey, JSON.stringify(localBotStore));
 }
 
 export function remove(id: string) {
   localBotStore = Object.assign({}, localBotStore);
   delete localBotStore[id];
+  localStorage.setItem(lsKey, JSON.stringify(localBotStore));
 }
