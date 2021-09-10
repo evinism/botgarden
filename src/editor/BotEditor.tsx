@@ -9,6 +9,12 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
   },
+  gameWrapper: {
+    flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
 }));
 
 interface BotEditorProps {
@@ -64,7 +70,7 @@ const BotEditor = ({ initialBot = skeleton, close, save }: BotEditorProps) => {
       <div>
         <BotForm botConfig={botConfig} setBotConfig={setBotConfig} />
       </div>
-      <div>
+      <div className={styles.gameWrapper}>
         <Button variant="contained" onClick={() => setGameNum(gameNum + 1)}>
           Restart Game
         </Button>
@@ -79,7 +85,6 @@ const BotEditor = ({ initialBot = skeleton, close, save }: BotEditorProps) => {
             }
             label="Playing as Black?"
           />
-          <Switch />
         </FormGroup>
         <Game key={gameNum} participants={participants} />
       </div>

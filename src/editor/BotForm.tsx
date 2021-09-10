@@ -1,13 +1,18 @@
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   FormControl,
   FormControlLabel,
   FormLabel,
+  InputLabel,
   MenuItem,
   Radio,
   RadioGroup,
   Select,
   Slider,
   TextField,
+  Typography,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import { makeStyles } from "@material-ui/styles";
@@ -19,6 +24,7 @@ import "ace-builds/src-noconflict/theme-dracula";
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/mode-json";
 import { BotConfig } from "../types";
+import { ExpandMore } from "@material-ui/icons";
 
 const defaultJS = `/*
 Looks for a function named "score"
@@ -35,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     padding: 16,
   },
-  innerWrapper: { width: 500 },
+  innerWrapper: { width: 600 },
 }));
 
 interface BotFormProps {
@@ -50,6 +56,7 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
   if (botConfig.strategy.type === "scorer/javascript") {
     textEditorSlot = (
       <AceEditor
+        height="300px"
         mode="javascript"
         theme="dracula"
         onChange={(value) =>
@@ -72,6 +79,7 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
       <AceEditor
         mode="json"
         theme="dracula"
+        height="300px"
         value={JSON.stringify(botConfig.strategy.logic)}
         onChange={(value) => {
           setBotConfig({
@@ -112,128 +120,165 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
   return (
     <div className={styles.root}>
       <div className={styles.innerWrapper}>
-        <TextField
-          label="Bot Name"
-          value={botConfig.name}
-          onChange={(e) => {
-            setBotConfig({
-              ...botConfig,
-              name: e.target.value,
-            });
-          }}
-        />
-        <FormControl fullWidth>
-          <FormLabel>Base Engine Depth</FormLabel>
-          <Slider
-            defaultValue={23}
-            valueLabelDisplay="auto"
-            step={1}
-            marks
-            min={1}
-            max={23}
-            value={botConfig.baseEngine.maxDepth}
-            onChange={(e, newValue) => {
-              setBotConfig({
-                ...botConfig,
-                baseEngine: {
-                  ...botConfig.baseEngine,
-                  maxDepth: newValue as number,
-                },
-              });
-            }}
-          />
-        </FormControl>
-        <FormControl fullWidth>
-          <FormLabel>Base Engine Timeout</FormLabel>
-          <Slider
-            defaultValue={1000}
-            valueLabelDisplay="auto"
-            step={100}
-            min={100}
-            max={30000}
-            value={botConfig.baseEngine.timeout}
-            valueLabelFormat={(value) => `${(value / 1000).toFixed(2)}s`}
-            onChange={(e, newValue) => {
-              setBotConfig({
-                ...botConfig,
-                baseEngine: {
-                  ...botConfig.baseEngine,
-                  timeout: newValue as number,
-                },
-              });
-            }}
-          />
-        </FormControl>
-        <RadioGroup
-          row
-          value={botConfig.strategy.type}
-          onChange={(e, newValue) => {
-            let castedNewValue = newValue as BotConfig["strategy"]["type"];
-            let newStrategy: BotConfig["strategy"] | void = undefined;
-            if (castedNewValue === "scorer/javascript") {
-              newStrategy = {
-                dangerous: true,
-                type: "scorer/javascript",
-                function: defaultJS,
-              };
-            } else if (castedNewValue === "scorer/jsonlogic") {
-              newStrategy = {
-                type: "scorer/jsonlogic",
-                logic: { reduce: [{ var: "scores" }, { var: "current" }, 0] },
-              };
-            } else {
-              newStrategy = {
-                type: "hardcoded",
-                id: "best",
-              };
-            }
-            if (newStrategy) {
-              setBotConfig({
-                ...botConfig,
-                strategy: newStrategy,
-              });
-            }
-          }}
-        >
-          <FormControlLabel
-            value="scorer/javascript"
-            control={<Radio />}
-            label="JavaScript"
-          />
-          <FormControlLabel
-            value="scorer/jsonlogic"
-            control={<Radio />}
-            label="JSONLogic"
-          />
-          <FormControlLabel
-            value="hardcoded"
-            control={<Radio />}
-            label="Built-in"
-          />
-        </RadioGroup>
-        {textEditorSlot}
-        <Autocomplete
-          multiple
-          id="tags-standard"
-          options={openings}
-          getOptionLabel={(option) => option.description}
-          defaultValue={[]}
-          value={botConfig.preferredOpenings}
-          onChange={(e, newValue) => {
-            setBotConfig({
-              ...botConfig,
-              preferredOpenings: newValue,
-            });
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              variant="standard"
-              label="Openings"
-              placeholder="Openings"
-            />
-          )}
-        />
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography>General</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <div>
+              <TextField
+                label="Bot Name"
+                value={botConfig.name}
+                onChange={(e) => {
+                  setBotConfig({
+                    ...botConfig,
+                    name: e.target.value,
+                  });
+                }}
+              />
+              <Autocomplete
+                multiple
+                id="tags-standard"
+                options={openings}
+                getOptionLabel={(option) => option.description}
+                defaultValue={[]}
+                value={botConfig.preferredOpenings}
+                onChange={(e, newValue) => {
+                  setBotConfig({
+                    ...botConfig,
+                    preferredOpenings: newValue,
+                  });
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label="Preferred Openings"
+                  />
+                )}
+              />
+            </div>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography>Base Engine</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <div>
+              <FormControl>
+                <InputLabel id="demo-simple-select-label">
+                  Base Engine
+                </InputLabel>
+                <Select value={"sf"} disabled>
+                  <MenuItem value={"sf"}>Stockfish 12 (wasm)</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <FormLabel>Base Engine Depth</FormLabel>
+                <Slider
+                  defaultValue={23}
+                  valueLabelDisplay="auto"
+                  step={1}
+                  marks
+                  min={1}
+                  max={23}
+                  value={botConfig.baseEngine.maxDepth}
+                  onChange={(e, newValue) => {
+                    setBotConfig({
+                      ...botConfig,
+                      baseEngine: {
+                        ...botConfig.baseEngine,
+                        maxDepth: newValue as number,
+                      },
+                    });
+                  }}
+                />
+              </FormControl>
+              <FormControl fullWidth>
+                <FormLabel>Base Engine Timeout</FormLabel>
+                <Slider
+                  defaultValue={1000}
+                  valueLabelDisplay="auto"
+                  step={100}
+                  min={100}
+                  max={30000}
+                  value={botConfig.baseEngine.timeout}
+                  valueLabelFormat={(value) => `${(value / 1000).toFixed(2)}s`}
+                  onChange={(e, newValue) => {
+                    setBotConfig({
+                      ...botConfig,
+                      baseEngine: {
+                        ...botConfig.baseEngine,
+                        timeout: newValue as number,
+                      },
+                    });
+                  }}
+                />
+              </FormControl>
+            </div>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography>Line Scoring</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <div>
+              <RadioGroup
+                row
+                value={botConfig.strategy.type}
+                onChange={(e, newValue) => {
+                  let castedNewValue =
+                    newValue as BotConfig["strategy"]["type"];
+                  let newStrategy: BotConfig["strategy"] | void = undefined;
+                  if (castedNewValue === "scorer/javascript") {
+                    newStrategy = {
+                      dangerous: true,
+                      type: "scorer/javascript",
+                      function: defaultJS,
+                    };
+                  } else if (castedNewValue === "scorer/jsonlogic") {
+                    newStrategy = {
+                      type: "scorer/jsonlogic",
+                      logic: {
+                        reduce: [{ var: "scores" }, { var: "current" }, 0],
+                      },
+                    };
+                  } else {
+                    newStrategy = {
+                      type: "hardcoded",
+                      id: "best",
+                    };
+                  }
+                  if (newStrategy) {
+                    setBotConfig({
+                      ...botConfig,
+                      strategy: newStrategy,
+                    });
+                  }
+                }}
+              >
+                <FormControlLabel
+                  value="scorer/javascript"
+                  control={<Radio />}
+                  label="JavaScript"
+                />
+                <FormControlLabel
+                  value="scorer/jsonlogic"
+                  control={<Radio />}
+                  label="JSONLogic"
+                />
+                <FormControlLabel
+                  value="hardcoded"
+                  control={<Radio />}
+                  label="Built-in"
+                />
+              </RadioGroup>
+              {textEditorSlot}
+            </div>
+          </AccordionDetails>
+        </Accordion>
       </div>
     </div>
   );
