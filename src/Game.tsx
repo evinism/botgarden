@@ -1,23 +1,10 @@
 import Chessboard from "chessboardjsx";
 import { useEffect } from "react";
 import "./App.css";
-import { chooseMove, defaultBots, BotConfig } from "./bot";
+import { chooseMove, defaultBots } from "./bot";
 import { useGame, useStockfish } from "./hooks";
 import { getPreciseLine } from "./openings";
-
-type Player =
-  | {
-      type: "interactive";
-    }
-  | {
-      type: "bot";
-      config: BotConfig;
-    };
-
-type Participants = {
-  b: Player;
-  w: Player;
-};
+import { Participants } from "./types";
 
 interface GameProps {
   participants?: Participants;

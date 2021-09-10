@@ -1,5 +1,4 @@
 import {
-  Button,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -12,12 +11,14 @@ import {
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import { makeStyles } from "@material-ui/styles";
-import { BotConfig, hardcodedStrategies } from "../bot";
+import { hardcodedStrategies } from "../bot";
 import { openings } from "../openings";
 import AceEditor from "react-ace";
 
-import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/theme-dracula";
 import "ace-builds/src-noconflict/mode-javascript";
+import "ace-builds/src-noconflict/mode-json";
+import { BotConfig } from "../types";
 
 const defaultJS = `/*
 Looks for a function named "score"
@@ -32,8 +33,9 @@ function score(lineAnalysis){
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: 600,
+    padding: 16,
   },
+  innerWrapper: { width: 500 },
 }));
 
 interface BotFormProps {
@@ -49,7 +51,7 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
     textEditorSlot = (
       <AceEditor
         mode="javascript"
-        theme="github"
+        theme="dracula"
         onChange={(value) =>
           setBotConfig({
             ...botConfig,
@@ -68,8 +70,8 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
   } else if (botConfig.strategy.type === "scorer/jsonlogic") {
     textEditorSlot = (
       <AceEditor
-        mode="javascript"
-        theme="github"
+        mode="json"
+        theme="dracula"
         value={JSON.stringify(botConfig.strategy.logic)}
         onChange={(value) => {
           setBotConfig({
@@ -109,130 +111,129 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
 
   return (
     <div className={styles.root}>
-      <TextField
-        label="Bot Name"
-        value={botConfig.name}
-        onChange={(e) => {
-          setBotConfig({
-            ...botConfig,
-            name: e.target.value,
-          });
-        }}
-      />
-      <FormControl fullWidth>
-        <FormLabel>Base Engine Depth</FormLabel>
-        <Slider
-          defaultValue={23}
-          valueLabelDisplay="auto"
-          step={1}
-          marks
-          min={1}
-          max={23}
-          value={botConfig.baseEngine.maxDepth}
-          onChange={(e, newValue) => {
+      <div className={styles.innerWrapper}>
+        <TextField
+          label="Bot Name"
+          value={botConfig.name}
+          onChange={(e) => {
             setBotConfig({
               ...botConfig,
-              baseEngine: {
-                ...botConfig.baseEngine,
-                maxDepth: newValue as number,
-              },
+              name: e.target.value,
             });
           }}
         />
-      </FormControl>
-      <FormControl fullWidth>
-        <FormLabel>Base Engine Timeout</FormLabel>
-        <Slider
-          defaultValue={1000}
-          valueLabelDisplay="auto"
-          step={100}
-          min={100}
-          max={30000}
-          value={botConfig.baseEngine.timeout}
-          valueLabelFormat={(value) => `${(value / 1000).toFixed(2)}s`}
-          onChange={(e, newValue) => {
-            setBotConfig({
-              ...botConfig,
-              baseEngine: {
-                ...botConfig.baseEngine,
-                timeout: newValue as number,
-              },
-            });
-          }}
-        />
-      </FormControl>
-      <RadioGroup
-        value={botConfig.strategy.type}
-        onChange={(e, newValue) => {
-          let castedNewValue = newValue as BotConfig["strategy"]["type"];
-          let newStrategy: BotConfig["strategy"] | void = undefined;
-          if (castedNewValue === "scorer/javascript") {
-            newStrategy = {
-              dangerous: true,
-              type: "scorer/javascript",
-              function: defaultJS,
-            };
-          } else if (castedNewValue === "scorer/jsonlogic") {
-            newStrategy = {
-              type: "scorer/jsonlogic",
-              logic: { reduce: [{ var: "scores" }, { var: "current" }, 0] },
-            };
-          } else {
-            newStrategy = {
-              type: "hardcoded",
-              id: "best",
-            };
-          }
-          if (newStrategy) {
-            setBotConfig({
-              ...botConfig,
-              strategy: newStrategy,
-            });
-          }
-        }}
-      >
-        <FormControlLabel
-          value="scorer/javascript"
-          control={<Radio />}
-          label="JavaScript"
-        />
-        <FormControlLabel
-          value="hardcoded"
-          control={<Radio />}
-          label="Built-in"
-        />
-        <FormControlLabel
-          value="scorer/jsonlogic"
-          control={<Radio />}
-          label="JSONLogic"
-        />
-      </RadioGroup>
-      {textEditorSlot}
-      <Autocomplete
-        multiple
-        id="tags-standard"
-        options={openings}
-        getOptionLabel={(option) => option.description}
-        defaultValue={[]}
-        value={botConfig.preferredOpenings}
-        onChange={(e, newValue) => {
-          setBotConfig({
-            ...botConfig,
-            preferredOpenings: newValue,
-          });
-        }}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            variant="standard"
-            label="Multiple values"
-            placeholder="Openings"
+        <FormControl fullWidth>
+          <FormLabel>Base Engine Depth</FormLabel>
+          <Slider
+            defaultValue={23}
+            valueLabelDisplay="auto"
+            step={1}
+            marks
+            min={1}
+            max={23}
+            value={botConfig.baseEngine.maxDepth}
+            onChange={(e, newValue) => {
+              setBotConfig({
+                ...botConfig,
+                baseEngine: {
+                  ...botConfig.baseEngine,
+                  maxDepth: newValue as number,
+                },
+              });
+            }}
           />
-        )}
-      />
-      <div>
-        <Button>Close</Button>
-        <Button variant="contained">Save</Button>
+        </FormControl>
+        <FormControl fullWidth>
+          <FormLabel>Base Engine Timeout</FormLabel>
+          <Slider
+            defaultValue={1000}
+            valueLabelDisplay="auto"
+            step={100}
+            min={100}
+            max={30000}
+            value={botConfig.baseEngine.timeout}
+            valueLabelFormat={(value) => `${(value / 1000).toFixed(2)}s`}
+            onChange={(e, newValue) => {
+              setBotConfig({
+                ...botConfig,
+                baseEngine: {
+                  ...botConfig.baseEngine,
+                  timeout: newValue as number,
+                },
+              });
+            }}
+          />
+        </FormControl>
+        <RadioGroup
+          row
+          value={botConfig.strategy.type}
+          onChange={(e, newValue) => {
+            let castedNewValue = newValue as BotConfig["strategy"]["type"];
+            let newStrategy: BotConfig["strategy"] | void = undefined;
+            if (castedNewValue === "scorer/javascript") {
+              newStrategy = {
+                dangerous: true,
+                type: "scorer/javascript",
+                function: defaultJS,
+              };
+            } else if (castedNewValue === "scorer/jsonlogic") {
+              newStrategy = {
+                type: "scorer/jsonlogic",
+                logic: { reduce: [{ var: "scores" }, { var: "current" }, 0] },
+              };
+            } else {
+              newStrategy = {
+                type: "hardcoded",
+                id: "best",
+              };
+            }
+            if (newStrategy) {
+              setBotConfig({
+                ...botConfig,
+                strategy: newStrategy,
+              });
+            }
+          }}
+        >
+          <FormControlLabel
+            value="scorer/javascript"
+            control={<Radio />}
+            label="JavaScript"
+          />
+          <FormControlLabel
+            value="scorer/jsonlogic"
+            control={<Radio />}
+            label="JSONLogic"
+          />
+          <FormControlLabel
+            value="hardcoded"
+            control={<Radio />}
+            label="Built-in"
+          />
+        </RadioGroup>
+        {textEditorSlot}
+        <Autocomplete
+          multiple
+          id="tags-standard"
+          options={openings}
+          getOptionLabel={(option) => option.description}
+          defaultValue={[]}
+          value={botConfig.preferredOpenings}
+          onChange={(e, newValue) => {
+            setBotConfig({
+              ...botConfig,
+              preferredOpenings: newValue,
+            });
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              variant="standard"
+              label="Openings"
+              placeholder="Openings"
+            />
+          )}
+        />
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { BotConfig, defaultBots } from "../bot";
+import { defaultBots } from "../bot";
 import Game from "../Game";
+import { BotConfig } from "../types";
 
 const Main = () => {
   const [currentBot, setCurrentBot] = useState<BotConfig | void>();

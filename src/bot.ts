@@ -1,9 +1,10 @@
 import { MoveAnalyses } from "./stockfish";
 import * as ChessJS from "chess.js";
 import { ChessInstance } from "chess.js";
-import { getFavoredMoves, Opening } from "./openings";
+import { getFavoredMoves } from "./openings";
 import jsonLogic from "json-logic-js";
 import getFunction from "./getFunction";
+import { BotConfig } from "./types";
 
 const last = (a: number[]) => a[a.length - 1];
 
@@ -22,33 +23,6 @@ export const hardcodedStrategies = {
   best: highestOf(({ scores }) => last(scores)),
   worst: highestOf(({ scores }) => -last(scores)),
 };
-
-type Strategy =
-  | {
-      type: "hardcoded";
-      id: keyof typeof hardcodedStrategies;
-    }
-  | {
-      type: "scorer/jsonlogic";
-      logic: jsonLogic.RulesLogic;
-    }
-  | {
-      // DANGEROUS.
-      type: "scorer/javascript";
-      dangerous: true;
-      function: string;
-    };
-
-export interface BotConfig {
-  builtin?: true;
-  name: string;
-  baseEngine: {
-    maxDepth: number;
-    timeout: number;
-  };
-  strategy: Strategy;
-  preferredOpenings: Opening[];
-}
 
 export function chooseMove(
   lines: MoveAnalyses,

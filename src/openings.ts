@@ -1,12 +1,6 @@
 import { ChessInstance } from "chess.js";
 import untypedOpenings from "./openings.json";
-
-export type Opening = {
-  id: string;
-  code: string;
-  description: string;
-  line: string;
-};
+import { Opening } from "./types";
 
 export const openings: Opening[] = untypedOpenings;
 
@@ -58,7 +52,6 @@ export const getFavoredMoves = (
       const newHistory = history.slice();
       newHistory.push(move);
       const searchString = historyToSearchString(newHistory);
-      debugger;
       return lineMatchesOpening(searchString)(opening);
     });
   });
