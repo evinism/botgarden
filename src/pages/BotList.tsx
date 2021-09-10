@@ -19,7 +19,6 @@ const BotList = ({ setAppState }: BotListProps) => {
           <h3>
             {bot.name} {bot.builtin && "[ builtin ]"}
           </h3>
-          {bot.builtin && <div>[builtin]</div>}
           <Button onClick={() => setAppState({ state: "playing", bot })}>
             Play Against
           </Button>
