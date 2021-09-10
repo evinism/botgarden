@@ -1,19 +1,7 @@
 import Scheduler from "./scheduler";
+import { AnalysisRequest, EngineMoveAnalyses } from "./types";
 
 interface StockfishOptions {}
-
-export interface MoveAnalyses {
-  [move: string]: {
-    scores: number[];
-    line: string[];
-  };
-}
-
-interface AnalysisRequest {
-  fen: string;
-  depth: number;
-  timeout: number;
-}
 
 type AnalysisOptions = Partial<AnalysisRequest>;
 
@@ -55,15 +43,15 @@ class StockfishInstance {
     fen,
     depth,
     timeout,
-  }: AnalysisRequest): Promise<MoveAnalyses> =>
+  }: AnalysisRequest): Promise<EngineMoveAnalyses> =>
     this.scheduler.schedule(() => {
-      return new Promise<MoveAnalyses>((resolve) => {
+      return new Promise<EngineMoveAnalyses>((resolve) => {
         if (fen) {
           this._postMessage("position fen " + fen);
         }
         this._postMessage("go depth " + depth);
 
-        const moveAnalyses: MoveAnalyses = {};
+        const moveAnalyses: EngineMoveAnalyses = {};
         let hitDepth = 0;
         const recordAnalysis = (
           depth: number,

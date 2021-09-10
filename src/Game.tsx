@@ -2,7 +2,7 @@ import Chessboard from "chessboardjsx";
 import { useEffect } from "react";
 import "./App.css";
 import { chooseMove } from "./bot";
-import { useGame, useStockfish } from "./hooks";
+import { useGame, useAnalyzer } from "./hooks";
 import { getPreciseLine } from "./openings";
 import { Participants } from "./types";
 
@@ -21,12 +21,12 @@ const defaultParticipants: Participants = {
 
 function Game({ participants = defaultParticipants }: GameProps) {
   const [game, move] = useGame();
-  const stockfish = useStockfish();
+  const analyzer = useAnalyzer();
   let turn = game?.turn();
   let activeParticipant = turn && participants[turn];
 
   useEffect(() => {
-    if (!game || !stockfish || !activeParticipant) {
+    if (!game || !analyzer || !activeParticipant) {
       return;
     }
     if (
@@ -35,8 +35,8 @@ function Game({ participants = defaultParticipants }: GameProps) {
       !game.game_over()
     ) {
       const config = activeParticipant.config;
-      stockfish
-        .getAnalyses({
+      analyzer
+        .analyze({
           fen: game.fen(),
           depth: config.baseEngine.maxDepth,
           timeout: config.baseEngine.timeout,
@@ -45,9 +45,9 @@ function Game({ participants = defaultParticipants }: GameProps) {
           move(chooseMove(moves, config, game));
         });
     }
-  }, [activeParticipant, game, move, stockfish]);
+  }, [activeParticipant, game, move, analyzer]);
 
-  if (!game || !stockfish) {
+  if (!game || !analyzer) {
     return <></>;
   }
 

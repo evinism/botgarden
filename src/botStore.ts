@@ -1,26 +1,22 @@
 import { BotConfig } from "./types";
 
-const drawishFnText = `function score({ scores }){
-  return -Math.abs(scores[scores.length - 1])
+const drawishFnText = `function score({ overallScore }){
+  return -Math.abs(overallScore)
 }`;
 
 const inscrutableFnText = `
-function last(arr){
-  return arr[arr.length - 1]
-}
-
-function score({ scores }) {
+function score({ scores, overallScore }) {
   const firstNegative = scores.findIndex((a) => a < 0);
   const firstPositive = scores.findIndex((a) => a > 0);
-  if (firstPositive === -1 || last(scores) < 0) {
-    return last(scores);
+  if (firstPositive === -1 || overallScore < 0) {
+    return overallScore;
   }
   let multiplier = 1;
   if (firstNegative < firstPositive) {
     multiplier = firstPositive + 1;
   }
   console.log(scores, multiplier);
-  return last(scores) * multiplier;
+  return overallScore * multiplier;
 }`;
 
 export const defaultBots: { [key: string]: BotConfig } = {
@@ -95,8 +91,8 @@ export const defaultBots: { [key: string]: BotConfig } = {
 
 const lsKey = "bots-key2";
 
-let localBotStore: typeof defaultBots =
-  JSON.parse(localStorage.getItem(lsKey) || "null") || defaultBots;
+let localBotStore: typeof defaultBots = defaultBots;
+//JSON.parse(localStorage.getItem(lsKey) || "null") || defaultBots;
 
 export function getAllBots() {
   return localBotStore;

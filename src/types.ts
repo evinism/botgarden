@@ -61,3 +61,23 @@ export type AppState =
       initialBotConfig: BotConfig;
       botId?: string;
     };
+
+export interface AnalysisRequest {
+  fen: string;
+  depth: number;
+  timeout: number;
+}
+
+export interface EngineMoveAnalyses {
+  [move: string]: {
+    scores: number[];
+    line: string[];
+  };
+}
+export interface MoveAnalyses {
+  [move: string]: {
+    scores: number[];
+    line: string[];
+    overallScore: number;
+  };
+}

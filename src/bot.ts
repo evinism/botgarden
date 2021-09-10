@@ -1,10 +1,9 @@
-import { MoveAnalyses } from "./stockfish";
 import * as ChessJS from "chess.js";
 import { ChessInstance } from "chess.js";
 import { getFavoredMoves } from "./openings";
 import jsonLogic from "json-logic-js";
 import getFunction from "./getFunction";
-import { BotConfig } from "./types";
+import { BotConfig, MoveAnalyses } from "./types";
 
 const last = (a: number[]) => a[a.length - 1];
 
@@ -61,104 +60,3 @@ export function chooseMove(
   };
   return formatForChessJS(rawMove);
 }
-
-const drawishFnText = `function score({ scores }){
-  return -Math.abs(scores[scores.length - 1])
-}`;
-
-const inscrutableFnText = `
-function last(arr){
-  return arr[arr.length - 1]
-}
-
-function score({ scores }) {
-  const firstNegative = scores.findIndex((a) => a < 0);
-  const firstPositive = scores.findIndex((a) => a > 0);
-  if (firstPositive === -1 || last(scores) < 0) {
-    return last(scores);
-  }
-  let multiplier = 1;
-  if (firstNegative < firstPositive) {
-    multiplier = firstPositive + 1;
-  }
-  console.log(scores, multiplier);
-  return last(scores) * multiplier;
-}`;
-
-export const defaultBots: BotConfig[] = [
-  {
-    name: "Best",
-    builtin: true,
-    baseEngine: {
-      maxDepth: 23,
-      timeout: 1500,
-    },
-    strategy: {
-      type: "scorer/jsonlogic",
-      logic: {
-        reduce: [{ var: "scores" }, { var: "current" }, 0],
-      },
-    },
-    preferredOpenings: [],
-  },
-  {
-    name: "Worst",
-    builtin: true,
-    strategy: {
-      type: "scorer/jsonlogic",
-      logic: {
-        "-": {
-          reduce: [{ var: "scores" }, { var: "current" }, 0],
-        },
-      },
-    },
-    baseEngine: {
-      maxDepth: 23,
-      timeout: 500,
-    },
-    preferredOpenings: [],
-  },
-  {
-    name: "Drawish",
-    builtin: true,
-    strategy: {
-      dangerous: true,
-      type: "scorer/javascript",
-      function: drawishFnText,
-    },
-    baseEngine: {
-      maxDepth: 23,
-      timeout: 1500,
-    },
-    preferredOpenings: [],
-  },
-  {
-    name: "Inscrutable",
-    builtin: true,
-    strategy: {
-      dangerous: true,
-      type: "scorer/javascript",
-      function: inscrutableFnText,
-    },
-    baseEngine: {
-      maxDepth: 23,
-      timeout: 1500,
-    },
-    preferredOpenings: [],
-  },
-  {
-    name: "Shallow",
-    builtin: true,
-    baseEngine: {
-      maxDepth: 1,
-      timeout: 1500,
-    },
-    strategy: {
-      type: "scorer/jsonlogic",
-      logic: {
-        reduce: [{ var: "scores" }, { var: "current" }, 0],
-      },
-    },
-    preferredOpenings: [],
-  },
-];

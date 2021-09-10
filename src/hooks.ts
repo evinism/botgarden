@@ -1,19 +1,19 @@
 import * as ChessJS from "chess.js";
 import { ChessInstance } from "chess.js";
 import { useEffect, useReducer, useRef } from "react";
-import StockfishInstance from "./stockfish";
+import Analyzer from "./analyzer";
 
-export const useStockfish = () => {
+export const useAnalyzer = () => {
   const forceUpdate = useReducer(() => ({}), {})[1] as () => void;
-  const stockfish = useRef<StockfishInstance | void>();
+  const analyzer = useRef<Analyzer | void>();
 
   useEffect(() => {
-    stockfish.current = new StockfishInstance();
+    analyzer.current = new Analyzer();
     forceUpdate();
-    return stockfish.current.destructor;
+    return analyzer.current.destructor;
     // eslint-disable-next-line
   }, []);
-  return stockfish.current;
+  return analyzer.current;
 };
 
 export const useGame = (): [
