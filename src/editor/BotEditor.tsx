@@ -1,11 +1,12 @@
 import { Button, FormControlLabel, FormGroup, Switch } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useState } from "react";
+import { save } from "../botStore";
 import Game from "../Game";
-import { Participants, BotConfig } from "../types";
+import { Participants, BotConfig, AppState } from "../types";
 import BotForm from "./BotForm";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
   },
@@ -19,11 +20,12 @@ const useStyles = makeStyles((theme) => ({
 
 interface BotEditorProps {
   initialBot?: BotConfig;
-  close?: () => void;
-  save?: (botConfig: BotConfig) => void;
+  botId?: string;
+  setAppState: (appState: AppState) => unknown;
 }
 
 const skeleton: BotConfig = {
+  builtin: false,
   name: "New Bot",
   baseEngine: {
     maxDepth: 23,
@@ -36,7 +38,11 @@ const skeleton: BotConfig = {
   preferredOpenings: [],
 };
 
-const BotEditor = ({ initialBot = skeleton, close, save }: BotEditorProps) => {
+const BotEditor = ({
+  initialBot = skeleton,
+  setAppState,
+  botId,
+}: BotEditorProps) => {
   const styles = useStyles();
 
   const [gameNum, setGameNum] = useState(0);
@@ -66,29 +72,46 @@ const BotEditor = ({ initialBot = skeleton, close, save }: BotEditorProps) => {
       };
 
   return (
-    <div className={styles.root}>
+    <>
       <div>
-        <BotForm botConfig={botConfig} setBotConfig={setBotConfig} />
-      </div>
-      <div className={styles.gameWrapper}>
-        <Button variant="contained" onClick={() => setGameNum(gameNum + 1)}>
-          Restart Game
+        <h2>Editing {botConfig.name}</h2>
+
+        <Button onClick={() => setAppState({ state: "home" })}>Cancel</Button>
+        <Button
+          variant="contained"
+          onClick={() => {
+            save(botConfig, botId);
+            setAppState({ state: "home" });
+          }}
+        >
+          Save Locally
         </Button>
-        <FormGroup>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={playingAsBlack}
-                onChange={(e) => setPlayingAsBlack(e.target.checked)}
-                name="checkedA"
-              />
-            }
-            label="Playing as Black?"
-          />
-        </FormGroup>
-        <Game key={gameNum} participants={participants} />
       </div>
-    </div>
+      <div className={styles.root}>
+        <div>
+          <BotForm botConfig={botConfig} setBotConfig={setBotConfig} />
+        </div>
+        <div className={styles.gameWrapper}>
+          <Game key={gameNum} participants={participants} />
+
+          <Button variant="contained" onClick={() => setGameNum(gameNum + 1)}>
+            Restart Game
+          </Button>
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={playingAsBlack}
+                  onChange={(e) => setPlayingAsBlack(e.target.checked)}
+                  name="checkedA"
+                />
+              }
+              label="Playing as Black?"
+            />
+          </FormGroup>
+        </div>
+      </div>
+    </>
   );
 };
 

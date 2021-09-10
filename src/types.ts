@@ -38,7 +38,7 @@ export type Strategy =
     };
 
 export interface BotConfig {
-  builtin?: true;
+  builtin: boolean;
   name: string;
   baseEngine: {
     maxDepth: number;
@@ -47,3 +47,17 @@ export interface BotConfig {
   strategy: Strategy;
   preferredOpenings: Opening[];
 }
+
+export type AppState =
+  | {
+      state: "home";
+    }
+  | {
+      state: "playing";
+      bot: BotConfig;
+    }
+  | {
+      state: "editing";
+      initialBotConfig: BotConfig;
+      botId?: string;
+    };

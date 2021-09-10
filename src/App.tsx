@@ -2,8 +2,10 @@ import "./App.css";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import Main from "./pages/Main";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import EditorPage from "./pages/EditorPage";
+import { AppState } from "./types";
+import { useState } from "react";
+import BotList from "./pages/BotList";
 
 const darkTheme = createTheme({
   palette: {
@@ -12,26 +14,23 @@ const darkTheme = createTheme({
 });
 
 function App() {
+  const [appState, setAppState] = useState<AppState>({ state: "home" });
   return (
     <ThemeProvider theme={darkTheme}>
-      <Router>
-        <div className="App">
-          <Switch>
-            <Route path="/editor">
-              <EditorPage />
-            </Route>
-            <Route path="/game">
-              <Main />
-            </Route>
-            <Route path="/" exact>
-              <Link to="/editor">Editor</Link>
-              <Link to="/game">Game</Link>
-            </Route>
-            <Route path="/">Page Not Found!!!</Route>
-          </Switch>
-        </div>
-      </Router>
-      <CssBaseline />
+      <div className="App">
+        {appState.state === "home" && <BotList setAppState={setAppState} />}
+        {appState.state === "playing" && (
+          <Main currentBot={appState.bot} setAppState={setAppState} />
+        )}
+        {appState.state === "editing" && (
+          <EditorPage
+            initialBot={appState.initialBotConfig}
+            botId={appState.botId}
+            setAppState={setAppState}
+          />
+        )}
+        <CssBaseline />
+      </div>
     </ThemeProvider>
   );
 }

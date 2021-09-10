@@ -168,14 +168,14 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
             <div>
               <FormControl>
                 <InputLabel id="demo-simple-select-label">
-                  Base Engine
+                  UCI Engine
                 </InputLabel>
                 <Select value={"sf"} disabled>
                   <MenuItem value={"sf"}>Stockfish 12 (wasm)</MenuItem>
                 </Select>
               </FormControl>
               <FormControl fullWidth>
-                <FormLabel>Base Engine Depth</FormLabel>
+                <FormLabel>Max Depth</FormLabel>
                 <Slider
                   defaultValue={23}
                   valueLabelDisplay="auto"
@@ -196,7 +196,7 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
                 />
               </FormControl>
               <FormControl fullWidth>
-                <FormLabel>Base Engine Timeout</FormLabel>
+                <FormLabel>Max Think Time</FormLabel>
                 <Slider
                   defaultValue={1000}
                   valueLabelDisplay="auto"

@@ -1,14 +1,15 @@
-import { useState } from "react";
-import { defaultBots } from "../bot";
 import Game from "../Game";
-import { BotConfig } from "../types";
+import { AppState, BotConfig } from "../types";
 
-const Main = () => {
-  const [currentBot, setCurrentBot] = useState<BotConfig | void>();
+interface MainProps {
+  currentBot: BotConfig;
+  setAppState: (state: AppState) => unknown;
+}
 
-  return currentBot ? (
-    <>
-      <button onClick={() => setCurrentBot()}>Back</button>
+const Main = ({ currentBot, setAppState }: MainProps) => {
+  return (
+    <div>
+      <button onClick={() => setAppState({ state: "home" })}>Back</button>
       <div>
         <Game
           participants={{
@@ -22,16 +23,7 @@ const Main = () => {
           }}
         />
       </div>
-    </>
-  ) : (
-    <>
-      <h1>Choose a bot</h1>
-      {defaultBots.map((bot) => (
-        <div>
-          <button onClick={() => setCurrentBot(bot)}>{bot.name}</button>
-        </div>
-      ))}
-    </>
+    </div>
   );
 };
 
