@@ -40,6 +40,7 @@ export type Strategy =
 export interface BotConfig {
   builtin: boolean;
   name: string;
+  description: string;
   baseEngine: {
     maxDepth: number;
     timeout: number;
@@ -70,14 +71,17 @@ export interface AnalysisRequest {
 
 export interface EngineMoveAnalyses {
   [move: string]: {
-    scores: number[];
-    line: string[];
+    scoreAtDepth: number[];
+    rawMoves: string[];
   };
 }
 export interface MoveAnalyses {
   [move: string]: {
-    scores: number[];
-    line: string[];
+    scoreAtDepth: number[];
+    line: {
+      moveText: string;
+      materialAdvantage: number;
+    }[];
     overallScore: number;
   };
 }

@@ -1,27 +1,48 @@
 import { BotConfig } from "./types";
+import JSONLogic from "json-logic-js";
 
 const drawishFnText = `function score({ overallScore }){
-  return -Math.abs(overallScore)
+\treturn -Math.abs(overallScore)
 }`;
 
 const inscrutableFnText = `
-function score({ scores, overallScore }) {
-  const firstNegative = scores.findIndex((a) => a < 0);
-  const firstPositive = scores.findIndex((a) => a > 0);
-  if (firstPositive === -1 || overallScore < 0) {
-    return overallScore;
-  }
-  let multiplier = 1;
-  if (firstNegative < firstPositive) {
-    multiplier = firstPositive + 1;
-  }
-  console.log(scores, multiplier);
-  return overallScore * multiplier;
+function score(lineAnalysis) {
+\tconst { scoreAtDepth, overallScore } = lineAnalysis
+\tconst firstNegative = scoreAtDepth.findIndex((a) => a < 0);
+\tconst firstPositive = scoreAtDepth.findIndex((a) => a > 0);
+\tif (firstPositive === -1 || overallScore < 0) {
+\t\treturn overallScore;
+\t}
+\tlet multiplier = 1;
+\tif (firstNegative < firstPositive) {
+\t\tmultiplier = firstPositive + 1;
+\t}
+\tconsole.log(lineAnalysis);
+\treturn overallScore * multiplier;
+}`;
+
+const sacrificialFnText = `function score({overallScore, line}){
+\tconst earlyMaterialAdvantage = line
+\t\t.slice(0, 6)
+\t\t.map((move) => move.materialAdvantage)
+\t\t.reduce((a, b) => a + b, 0) / 6;
+\tconsole.log(line);
+\treturn overallScore - earlyMaterialAdvantage * 100;
+}`;
+
+const aggressiveFnTest = `function score({overallScore, line}){
+\tconst earlyMaterialAdvantage = line
+\t\t.slice(0, 6)
+\t\t.map((move) => move.materialAdvantage)
+\t\t.reduce((a, b) => a + b, 0) / 6;
+\tconsole.log(line);
+\treturn overallScore + earlyMaterialAdvantage * 100;
 }`;
 
 export const defaultBots: { [key: string]: BotConfig } = {
   best: {
     name: "Best",
+    description: "Plays the best move possible",
     builtin: true,
     baseEngine: {
       maxDepth: 23,
@@ -35,6 +56,7 @@ export const defaultBots: { [key: string]: BotConfig } = {
   },
   worst: {
     name: "Worst",
+    description: "Plays the worst move possible",
     builtin: true,
     strategy: {
       type: "hardcoded",
@@ -48,6 +70,7 @@ export const defaultBots: { [key: string]: BotConfig } = {
   },
   drawish: {
     name: "Drawish",
+    description: "Equalizes the position, whether winning or losing",
     builtin: true,
     strategy: {
       dangerous: true,
@@ -62,6 +85,7 @@ export const defaultBots: { [key: string]: BotConfig } = {
   },
   inscrutable: {
     name: "Inscrutable",
+    description: "Values unintuitive moves more highly",
     builtin: true,
     strategy: {
       dangerous: true,
@@ -76,6 +100,7 @@ export const defaultBots: { [key: string]: BotConfig } = {
   },
   shallow: {
     name: "Shallow",
+    description: "Low-depth Engine",
     builtin: true,
     baseEngine: {
       maxDepth: 1,
@@ -87,6 +112,63 @@ export const defaultBots: { [key: string]: BotConfig } = {
     },
     preferredOpenings: [],
   },
+  sacrificial: {
+    name: "Sacrificial",
+    description: "Values short-term point material defecits for long-term gain",
+    builtin: true,
+    baseEngine: {
+      maxDepth: 23,
+      timeout: 1500,
+    },
+    strategy: {
+      dangerous: true,
+      type: "scorer/javascript",
+      function: sacrificialFnText,
+    },
+    preferredOpenings: [],
+  },
+  aggressive: {
+    name: "Aggressive",
+    description: "Highly values material advantage",
+    builtin: true,
+    baseEngine: {
+      maxDepth: 23,
+      timeout: 1500,
+    },
+    strategy: {
+      dangerous: true,
+      type: "scorer/javascript",
+      function: aggressiveFnTest,
+    },
+    preferredOpenings: [],
+  },
+};
+
+export const defaultJS = `/*
+Looks for a function named "score"
+Should take a lineAnalysis and return a number.
+*/
+
+function score(lineAnalysis){
+\treturn lineAnalysis.overallScore;
+}
+`;
+
+export const defaultJSONLogic: JSONLogic.RulesLogic = { var: "overallScore" };
+export const skeleton: BotConfig = {
+  builtin: false,
+  name: "New Bot",
+  description: "",
+  baseEngine: {
+    maxDepth: 23,
+    timeout: 1500,
+  },
+  strategy: {
+    type: "scorer/javascript",
+    dangerous: true,
+    function: defaultJS,
+  },
+  preferredOpenings: [],
 };
 
 const lsKey = "bots-key2";

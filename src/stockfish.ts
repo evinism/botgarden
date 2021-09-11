@@ -59,16 +59,16 @@ class StockfishInstance {
           move: string,
           line: string[]
         ) => {
-          const curArray = (moveAnalyses[move]?.scores || []).slice();
-          let curLine = (moveAnalyses[move]?.line || []).slice();
+          const curArray = (moveAnalyses[move]?.scoreAtDepth || []).slice();
+          let curLine = (moveAnalyses[move]?.rawMoves || []).slice();
 
           curArray[depth - 1] = cp;
           if (line.length > curLine.length) {
             curLine = line;
           }
           moveAnalyses[move] = {
-            line: curLine,
-            scores: curArray,
+            rawMoves: curLine,
+            scoreAtDepth: curArray,
           };
           if (depth > hitDepth) {
             hitDepth = depth;

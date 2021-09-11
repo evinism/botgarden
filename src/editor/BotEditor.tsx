@@ -1,7 +1,14 @@
-import { Button, FormControlLabel, FormGroup, Switch } from "@material-ui/core";
+import {
+  Button,
+  FormControlLabel,
+  FormGroup,
+  Paper,
+  Switch,
+  Typography,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useState } from "react";
-import { save } from "../botStore";
+import { save, skeleton } from "../botStore";
 import Game from "../Game";
 import { Participants, BotConfig, AppState } from "../types";
 import BotForm from "./BotForm";
@@ -16,6 +23,14 @@ const useStyles = makeStyles(() => ({
     flexDirection: "column",
     alignItems: "center",
   },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    padding: 16,
+  },
+  headerText: {
+    flexGrow: 1,
+  },
 }));
 
 interface BotEditorProps {
@@ -23,20 +38,6 @@ interface BotEditorProps {
   botId?: string;
   setAppState: (appState: AppState) => unknown;
 }
-
-const skeleton: BotConfig = {
-  builtin: false,
-  name: "New Bot",
-  baseEngine: {
-    maxDepth: 23,
-    timeout: 1500,
-  },
-  strategy: {
-    type: "scorer/jsonlogic",
-    logic: { reduce: [{ var: "scores" }, { var: "current" }, 0] },
-  },
-  preferredOpenings: [],
-};
 
 const BotEditor = ({
   initialBot = skeleton,
@@ -73,20 +74,23 @@ const BotEditor = ({
 
   return (
     <>
-      <div>
-        <h2>Editing {botConfig.name}</h2>
-
-        <Button onClick={() => setAppState({ state: "home" })}>Cancel</Button>
-        <Button
-          variant="contained"
-          onClick={() => {
-            save(botConfig, botId);
-            setAppState({ state: "home" });
-          }}
-        >
-          Save Locally
-        </Button>
-      </div>
+      <Paper className={styles.header} square>
+        <Typography variant="h6" className={styles.headerText}>
+          Editing {botConfig.name}
+        </Typography>
+        <div>
+          <Button onClick={() => setAppState({ state: "home" })}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              save(botConfig, botId);
+              setAppState({ state: "home" });
+            }}
+          >
+            Save Locally
+          </Button>
+        </div>
+      </Paper>
       <div className={styles.root}>
         <div>
           <BotForm botConfig={botConfig} setBotConfig={setBotConfig} />

@@ -19,8 +19,8 @@ const highestOf = (sorter: (item: MoveAnalyses[string]) => number) =>
   lowestOf((item) => -sorter(item));
 
 export const hardcodedStrategies = {
-  best: highestOf(({ scores }) => last(scores)),
-  worst: highestOf(({ scores }) => -last(scores)),
+  best: highestOf(({ scoreAtDepth }) => last(scoreAtDepth)),
+  worst: highestOf(({ scoreAtDepth }) => -last(scoreAtDepth)),
 };
 
 export function chooseMove(

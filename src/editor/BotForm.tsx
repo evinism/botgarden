@@ -25,17 +25,7 @@ import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/mode-json";
 import { BotConfig } from "../types";
 import { ExpandMore } from "@material-ui/icons";
-
-const defaultJS = `/*
-Looks for a function named "score"
-Should take a lineAnalysis and return a number.
-*/
-
-function score(lineAnalysis){
-\tvar scores = lineAnalysis.scores;
-\treturn scores[scores.length - 1];
-}
-`;
+import { defaultJS, defaultJSONLogic } from "../botStore";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -128,11 +118,23 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
             <div>
               <TextField
                 label="Bot Name"
+                fullWidth
                 value={botConfig.name}
                 onChange={(e) => {
                   setBotConfig({
                     ...botConfig,
                     name: e.target.value,
+                  });
+                }}
+              />
+              <TextField
+                label="Bot Description"
+                value={botConfig.description}
+                fullWidth
+                onChange={(e) => {
+                  setBotConfig({
+                    ...botConfig,
+                    description: e.target.value,
                   });
                 }}
               />
@@ -241,9 +243,7 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
                   } else if (castedNewValue === "scorer/jsonlogic") {
                     newStrategy = {
                       type: "scorer/jsonlogic",
-                      logic: {
-                        reduce: [{ var: "scores" }, { var: "current" }, 0],
-                      },
+                      logic: defaultJSONLogic,
                     };
                   } else {
                     newStrategy = {
