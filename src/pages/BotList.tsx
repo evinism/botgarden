@@ -3,12 +3,15 @@ import {
   Box,
   Button,
   Card,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
   Tooltip,
   Typography,
 } from "@material-ui/core";
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 import { getAllBots, remove, skeleton } from "../botStore";
-import { AppState } from "../types";
+import { AppState, BotConfig, Participants } from "../types";
 import { IconButton } from "@material-ui/core";
 import CallSplitIcon from "@material-ui/icons/CallSplit";
 import EditIcon from "@material-ui/icons/Edit";
@@ -45,10 +48,37 @@ const useStyles = makeStyles(() => ({
 
 const BotList = ({ setAppState }: BotListProps) => {
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  const [playingAs, setPlayingAs] = useState<"b" | "w" | "r">("r");
   const styles = useStyles();
+
+  const getParticipants = (botConfig: BotConfig): Participants => {
+    const bot = {
+      type: "bot" as "bot",
+      config: botConfig,
+    };
+    const player = {
+      type: "interactive" as "interactive",
+    };
+    let actual = playingAs;
+    if (actual === "r") {
+      actual = Math.random() > 0.5 ? "w" : "b";
+    }
+    return actual === "w" ? { w: player, b: bot } : { w: bot, b: player };
+  };
   return (
     <div className={styles.pageWrapper}>
       <h1>Choose a chess bot to play against!</h1>
+      <RadioGroup
+        row
+        value={playingAs}
+        onChange={(e, newValue) => {
+          setPlayingAs(newValue as any);
+        }}
+      >
+        <FormControlLabel value="r" control={<Radio />} label="Random" />
+        <FormControlLabel value="w" control={<Radio />} label="Play as White" />
+        <FormControlLabel value="b" control={<Radio />} label="Play as Black" />
+      </RadioGroup>
       <div>
         {Object.entries(getAllBots()).map(([id, bot]) => (
           <Card variant="outlined" className={styles.card}>
@@ -103,7 +133,12 @@ const BotList = ({ setAppState }: BotListProps) => {
             </Box>
             <Button
               variant="contained"
-              onClick={() => setAppState({ state: "playing", bot })}
+              onClick={() =>
+                setAppState({
+                  state: "playing",
+                  participants: getParticipants(bot),
+                })
+              }
             >
               Play
             </Button>

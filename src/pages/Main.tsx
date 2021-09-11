@@ -1,6 +1,6 @@
 import { Button, makeStyles, Paper, Typography } from "@material-ui/core";
 import Game from "../Game";
-import { AppState, BotConfig } from "../types";
+import { AppState, Participants } from "../types";
 
 const useStyles = makeStyles(() => ({
   gameWrapper: {
@@ -15,30 +15,20 @@ const useStyles = makeStyles(() => ({
 }));
 
 interface MainProps {
-  currentBot: BotConfig;
+  participants: Participants;
   setAppState: (state: AppState) => unknown;
 }
 
-const Main = ({ currentBot, setAppState }: MainProps) => {
+const Main = ({ participants, setAppState }: MainProps) => {
   const styles = useStyles();
   return (
     <div>
       <Paper className={styles.header} square>
         <Button onClick={() => setAppState({ state: "home" })}>Back</Button>
-        <Typography variant="h6">Playing {currentBot.name}</Typography>
+        <Typography variant="h6">Playing</Typography>
       </Paper>
       <div className={styles.gameWrapper}>
-        <Game
-          participants={{
-            w: {
-              type: "bot",
-              config: currentBot,
-            },
-            b: {
-              type: "interactive",
-            },
-          }}
-        />
+        <Game participants={participants} />
       </div>
     </div>
   );

@@ -20,7 +20,10 @@ function App() {
       <div className="App">
         {appState.state === "home" && <BotList setAppState={setAppState} />}
         {appState.state === "playing" && (
-          <Main currentBot={appState.bot} setAppState={setAppState} />
+          <Main
+            participants={appState.participants}
+            setAppState={setAppState}
+          />
         )}
         {appState.state === "editing" && (
           <EditorPage

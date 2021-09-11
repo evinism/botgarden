@@ -55,7 +55,7 @@ export type AppState =
     }
   | {
       state: "playing";
-      bot: BotConfig;
+      participants: Participants;
     }
   | {
       state: "editing";
