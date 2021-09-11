@@ -21,6 +21,7 @@ function score(lineAnalysis) {
 \treturn overallScore * multiplier;
 }`;
 
+/*
 const sacrificialFnText = `function score({overallScore, line}){
 \tconst earlyMaterialAdvantage = line
 \t\t.slice(0, 6)
@@ -29,6 +30,7 @@ const sacrificialFnText = `function score({overallScore, line}){
 \tconsole.log(line);
 \treturn overallScore - earlyMaterialAdvantage * 100;
 }`;
+*/
 
 const aggressiveFnTest = `function score({overallScore, line}){
 \tconst earlyMaterialAdvantage = line
@@ -36,7 +38,7 @@ const aggressiveFnTest = `function score({overallScore, line}){
 \t\t.map((move) => move.materialAdvantage)
 \t\t.reduce((a, b) => a + b, 0) / 6;
 \tconsole.log(line);
-\treturn overallScore + earlyMaterialAdvantage * 100;
+\treturn overallScore + earlyMaterialAdvantage * 400;
 }`;
 
 export const defaultBots: { [key: string]: BotConfig } = {
@@ -109,21 +111,6 @@ export const defaultBots: { [key: string]: BotConfig } = {
     strategy: {
       type: "hardcoded",
       id: "best",
-    },
-    preferredOpenings: [],
-  },
-  sacrificial: {
-    name: "Sacrificial",
-    description: "Values short-term point material defecits for long-term gain",
-    builtin: true,
-    baseEngine: {
-      maxDepth: 23,
-      timeout: 1500,
-    },
-    strategy: {
-      dangerous: true,
-      type: "scorer/javascript",
-      function: sacrificialFnText,
     },
     preferredOpenings: [],
   },
