@@ -10,15 +10,15 @@ function score(lineAnalysis) {
 \tconst { scoreAtDepth, overallScore } = lineAnalysis
 \tconst firstNegative = scoreAtDepth.findIndex((a) => a < 0);
 \tconst firstPositive = scoreAtDepth.findIndex((a) => a > 0);
-\tif (firstPositive === -1 || overallScore < 0) {
+\tif (firstPositive === -1 || overallScore < -1) {
 \t\treturn overallScore;
 \t}
-\tlet multiplier = 1;
+\tlet modifier = 0;
 \tif (firstNegative < firstPositive) {
-\t\tmultiplier = firstPositive + 1;
+\t\tmodifier = firstPositive + 100;
 \t}
 \tconsole.log(lineAnalysis);
-\treturn overallScore * multiplier;
+\treturn overallScore + modifier;
 }`;
 
 /*
