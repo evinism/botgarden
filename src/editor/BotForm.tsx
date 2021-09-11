@@ -110,7 +110,7 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
   return (
     <div className={styles.root}>
       <div className={styles.innerWrapper}>
-        <Accordion>
+        <Accordion defaultExpanded>
           <AccordionSummary expandIcon={<ExpandMore />}>
             <Typography>General</Typography>
           </AccordionSummary>

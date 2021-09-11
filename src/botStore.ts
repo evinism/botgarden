@@ -129,7 +129,7 @@ export const defaultBots: { [key: string]: BotConfig } = {
   },
   aggressive: {
     name: "Aggressive",
-    description: "Highly values material advantage",
+    description: "Highly values short-term material advantage",
     builtin: true,
     baseEngine: {
       maxDepth: 23,
@@ -173,11 +173,17 @@ export const skeleton: BotConfig = {
 
 const lsKey = "bots-key2";
 
-let localBotStore: typeof defaultBots = defaultBots;
-//JSON.parse(localStorage.getItem(lsKey) || "null") || defaultBots;
+let localBotStore: typeof defaultBots = Object.assign(
+  JSON.parse(localStorage.getItem(lsKey) || "null") || {},
+  defaultBots
+);
 
 export function getAllBots() {
   return localBotStore;
+}
+
+function _persist() {
+  localStorage.setItem(lsKey, JSON.stringify(localBotStore));
 }
 
 export function save(
@@ -191,11 +197,11 @@ export function save(
       builtin: false,
     },
   };
-  localStorage.setItem(lsKey, JSON.stringify(localBotStore));
+  _persist();
 }
 
 export function remove(id: string) {
   localBotStore = Object.assign({}, localBotStore);
   delete localBotStore[id];
-  localStorage.setItem(lsKey, JSON.stringify(localBotStore));
+  _persist();
 }
