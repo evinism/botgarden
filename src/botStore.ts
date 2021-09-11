@@ -48,7 +48,7 @@ export const defaultBots: { [key: string]: BotConfig } = {
     builtin: true,
     baseEngine: {
       maxDepth: 23,
-      timeout: 1500,
+      timeout: 3000,
     },
     strategy: {
       type: "hardcoded",
