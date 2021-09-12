@@ -25,6 +25,14 @@ interface BotListProps {
 }
 
 const useStyles = makeStyles(() => ({
+  title: {
+    textAlign: "center",
+    fontSize: 40,
+  },
+  subtitle: {
+    textAlign: "center",
+    fontSize: 30,
+  },
   buttonSet: {
     margin: "8px",
     whiteSpace: "nowrap",
@@ -67,7 +75,12 @@ const BotList = ({ setAppState }: BotListProps) => {
   };
   return (
     <div className={styles.pageWrapper}>
-      <h1>Choose a chess bot to play against!</h1>
+      <Typography variant="h1" className={styles.title}>
+        Bot Garden:
+      </Typography>
+      <Typography variant="h2" className={styles.subtitle}>
+        Choose a chess bot to play against!
+      </Typography>
       <RadioGroup
         row
         value={playingAs}
