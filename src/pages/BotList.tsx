@@ -28,10 +28,12 @@ const useStyles = makeStyles(() => ({
   title: {
     textAlign: "center",
     fontSize: 40,
+    marginBottom: 16,
   },
   subtitle: {
     textAlign: "center",
     fontSize: 30,
+    marginBottom: 16,
   },
   buttonSet: {
     margin: "8px",
@@ -76,7 +78,7 @@ const BotList = ({ setAppState }: BotListProps) => {
   return (
     <div className={styles.pageWrapper}>
       <Typography variant="h1" className={styles.title}>
-        Bot Garden:
+        Bot Garden
       </Typography>
       <Typography variant="h2" className={styles.subtitle}>
         Choose a chess bot to play against!
