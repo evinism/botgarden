@@ -31,6 +31,10 @@ export type Strategy =
       logic: RulesLogic;
     }
   | {
+      type: "scorer/millieql";
+      query: string;
+    }
+  | {
       // DANGEROUS.
       type: "scorer/javascript";
       dangerous: true;

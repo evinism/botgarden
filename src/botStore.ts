@@ -32,15 +32,6 @@ const sacrificialFnText = `function score({overallScore, line}){
 }`;
 */
 
-const aggressiveFnTest = `function score({overallScore, line}){
-\tconst earlyMaterialAdvantage = line
-\t\t.slice(0, 6)
-\t\t.map((move) => move.materialAdvantage)
-\t\t.reduce((a, b) => a + b, 0) / 6;
-\tconsole.log(line);
-\treturn overallScore + earlyMaterialAdvantage * 400;
-}`;
-
 export const defaultBots: { [key: string]: BotConfig } = {
   best: {
     name: "Best",
@@ -114,8 +105,8 @@ export const defaultBots: { [key: string]: BotConfig } = {
     },
     preferredOpenings: [],
   },
-  aggressive: {
-    name: "Aggressive",
+  greedy: {
+    name: "Greedy",
     description: "Highly values short-term material advantage",
     builtin: true,
     baseEngine: {
@@ -123,9 +114,9 @@ export const defaultBots: { [key: string]: BotConfig } = {
       timeout: 1500,
     },
     strategy: {
-      dangerous: true,
-      type: "scorer/javascript",
-      function: aggressiveFnTest,
+      type: "scorer/millieql",
+      query:
+        "(line | head 4 | map materialAdvantage | sum) * 100 + overallScore",
     },
     preferredOpenings: [],
   },
@@ -158,7 +149,7 @@ export const skeleton: BotConfig = {
   preferredOpenings: [],
 };
 
-const lsKey = "bots-key2";
+const lsKey = "bots-key3";
 
 let localBotStore: typeof defaultBots = Object.assign(
   JSON.parse(localStorage.getItem(lsKey) || "null") || {},
