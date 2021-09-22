@@ -114,7 +114,7 @@ export const defaultBots: { [key: string]: BotConfig } = {
       timeout: 1500,
     },
     strategy: {
-      type: "scorer/millieql",
+      type: "scorer/mistql",
       query:
         "(line | head 4 | map materialAdvantage | sum) * 100 + overallScore",
     },

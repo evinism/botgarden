@@ -83,7 +83,7 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
         editorProps={{ $blockScrolling: true }}
       />
     );
-  } else if (botConfig.strategy.type === "scorer/millieql") {
+  } else if (botConfig.strategy.type === "scorer/mistql") {
     textEditorSlot = (
       <AceEditor
         theme="dracula"
@@ -93,7 +93,7 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
           setBotConfig({
             ...botConfig,
             strategy: {
-              type: "scorer/millieql",
+              type: "scorer/mistql",
               query: value,
             },
           });
@@ -263,9 +263,9 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
                       type: "scorer/jsonlogic",
                       logic: defaultJSONLogic,
                     };
-                  } else if (castedNewValue === "scorer/millieql") {
+                  } else if (castedNewValue === "scorer/mistql") {
                     newStrategy = {
-                      type: "scorer/millieql",
+                      type: "scorer/mistql",
                       query: "overallScore",
                     };
                   } else {
@@ -293,9 +293,9 @@ const BotForm = ({ botConfig, setBotConfig }: BotFormProps) => {
                   label="JSONLogic"
                 />
                 <FormControlLabel
-                  value="scorer/millieql"
+                  value="scorer/mistql"
                   control={<Radio />}
-                  label="MillieQL"
+                  label="MistQL"
                 />
                 <FormControlLabel
                   value="hardcoded"

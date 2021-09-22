@@ -31,7 +31,7 @@ export type Strategy =
       logic: RulesLogic;
     }
   | {
-      type: "scorer/millieql";
+      type: "scorer/mistql";
       query: string;
     }
   | {

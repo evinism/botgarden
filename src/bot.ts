@@ -4,7 +4,7 @@ import { getFavoredMoves } from "./openings";
 import jsonLogic from "json-logic-js";
 import getFunction from "./getFunction";
 import { BotConfig, MoveAnalyses } from "./types";
-import millieql from "millieql";
+import mistql from "mistql/dist/esm";
 
 const last = (a: number[]) => a[a.length - 1];
 
@@ -45,9 +45,9 @@ export function chooseMove(
       throw new Error("Not a valid function for the bot");
     }
     strat = highestOf(fn);
-  } else if (config.strategy.type === "scorer/millieql") {
+  } else if (config.strategy.type === "scorer/mistql") {
     const query = config.strategy.query;
-    strat = highestOf((line) => millieql.query(query, line));
+    strat = highestOf((line) => mistql.query(query, line));
   } else {
     const logic = config.strategy.logic;
     strat = highestOf((line) => jsonLogic.apply(logic, line));
